@@ -1,5 +1,11 @@
 = Evergreen
 
+image:https://badges.gitter.im/jenkins-infra/evergreen.svg[link="https://gitter.im/jenkins-infra/evergreen?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+
+image:https://badges.gitter.im/jenkins-infra/evergreen.svg[link="https://gitter.im/jenkins-infra/evergreen?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+
+link:https://issues.jenkins-ci.org/secure/RapidBoard.jspa?rapidView=396[*Issue Tracker*]
+
 Evergreen is an automatically updating rolling distribution system for
 "<<essentials>>." It consists of server-side, and client-side components to
 support a Chrome-like upgrade experience for Jenkins users.
@@ -40,3 +46,47 @@ standard Jenkins components and Node.js.
 Everything should be easily executed via some Docker tooling behind `make`. To
 run tests for example, simply run `make check` in the root directory of this
 repository.
+
+=== The Four Opens
+
+Inspired by the Openstack project
+footnote:[https://governance.openstack.org/tc/reference/opens.html]
+Jenkins Essentials follows "The Four Opens":
+
+==== Open Source
+
+We do _not_ produce “open core” software.
+
+We are committed to creating truly open source software that is usable and
+scalable. Truly open source software is not feature or performance limited and
+is not crippled.
+
+
+We use the MIT license.
+
+
+
+==== Open Design
+
+*We are committed to an open design process.*  The development cycle requires
+active collaboration to gather requirements and write specifications for
+upcoming releases. Those events, which are *open to anyone,* include users,
+developers, and upstream projects. We gather requirements, define priorities
+and flesh out technical design to guide development for the next development
+cycle.
+
+The community controls the design process. You can help make this software meet
+your needs.
+
+==== Open Development
+
+We maintain a publicly available source code repository through the entire
+development process. We do public code reviews. We have public roadmaps. This
+makes participation simpler, allows users to follow the development process and
+participate in QA at an early stage.
+
+==== Open Community
+
+One of our core goals is to maintain a healthy, vibrant developer and user
+community. Most decisions are made using a lazy consensus model. All processes
+are documented, open and transparent.
