@@ -68,10 +68,22 @@ function no_executor() {
   echo -n "Check master has no executor... "
   docker exec $container_under_test cat /var/jenkins_home/config.xml | \
       grep '<numExecutors>0</numExecutors>' > /dev/null
-      echo $?
   echo "OK!"
 }
 
+function docker_available() {
+  echo -n "Check docker client is available... "
+  docker exec $container_under_test which docker > /dev/null
+  # Check that not only something called docker can be found on the PATH
+  # but is actually looking more like it using a specific command call
+  set +e
+  output=$( docker exec $container_under_test docker version 2>&1 )
+  set -e
+  echo "$output" | \
+      grep "Cannot connect to the Docker daemon" > /dev/null
+
+  echo "OK!"
+}
 ### ACTUAL TEST CALLS
 
 setup_container_under_test
@@ -84,3 +96,6 @@ smoke
 
 # JENKINS-49861
 no_executor
+
+# JENKINS-49864
+docker_available
