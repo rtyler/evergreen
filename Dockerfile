@@ -12,7 +12,7 @@ ENV JENKINS_HOME /var/jenkins_home
 ENV JENKINS_AGENT_PORT ${agent_port}
 ENV EVERGREEN_ENDPOINT=http://127.0.0.1:9292
 ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
-RUN mkdir -p /usr/share/jenkins/ref/init.groovy.d
+COPY scripts/init.groovy.d /usr/share/jenkins/ref/init.groovy.d
 
 # Jenkins home directory is a volume, so configuration and build history
 # can be persisted and survive image upgrades
