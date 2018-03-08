@@ -41,6 +41,16 @@ RUN apk add --no-cache git \
                         nodejs \
                         ttf-dejavu
 
+# TODO: add a checksum check?
+RUN cd /tmp && \
+    wget https://download.docker.com/linux/static/stable/x86_64/docker-17.12.1-ce.tgz --output-document /tmp/docker.tar.gz && \
+    tar xvzf docker.tar.gz && \
+    mv docker/* /usr/local/bin && \
+    rmdir docker && \
+    rm docker.tar.gz
+
+
+
 # Jenkins is run with user `jenkins`, uid = 1000
 # If you bind mount a volume from the host or a data container,
 # ensure you use the same uid
