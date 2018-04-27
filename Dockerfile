@@ -19,8 +19,8 @@ ENV JENKINS_UC_EXPERIMENTAL=https://updates.jenkins.io/experimental
 
 ENV JAVA_OPTS=\
 "-Djava.awt.headless=true "\
-"-Djenkins.model.Jenkins.WORKSPACES_DIR=${JENKINS_VAR}/\${ITEM_FULL_NAME}/workspace "\
-"-Djenkins.model.Jenkins.BUILDS_DIR=$JENKINS_VAR/\${ITEM_FULL_NAME}/builds "\
+"-Djenkins.model.Jenkins.workspacesDir=${JENKINS_VAR}/\${ITEM_FULL_NAME}/workspace "\
+"-Djenkins.model.Jenkins.buildsDir=$JENKINS_VAR/\${ITEM_FULL_NAME}/builds "\
 "-Dhudson.triggers.SafeTimerTask.logsTargetDir=$JENKINS_VAR/logs "\
 "-Djava.util.logging.config.file=$EVERGREEN_HOME/logging.properties "
 
