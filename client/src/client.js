@@ -30,9 +30,14 @@ class Client {
      * Only setting on the cron once we have registered and logged in,
      * otherwise it's not really useful to have anything running periodically
      */
-    createCron(app);
+    const cron = createCron(app);
     this.status.authenticate(token);
     this.status.create(this.reg.uuid);
+
+    cron.runHourly('post-status', () => {
+      this.status.create(this.reg.uuid);
+    });
+
     setInterval( () => {
       /* no-op to keep this process alive */
     }, 10);

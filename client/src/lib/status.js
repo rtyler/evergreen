@@ -48,6 +48,9 @@ class Status {
         if (err.code != 400) {
           logger.error('Failed to create a Status record', err);
         }
+        else {
+          logger.debug('Status record not changed');
+        }
       });
   }
 
