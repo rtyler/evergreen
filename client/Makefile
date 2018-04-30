@@ -14,13 +14,17 @@ node_modules: package-lock.json package.json
 		$(NODE) npm install; \
 	fi;
 
-run:
+run: run-services
 	EVERGREEN_HOME=/tmp/evergreen-home \
 		EVERGREEN_ENDPOINT=http://127.0.0.1:3030 \
 		$(NODE) npm run client
+
+
+run-services:
+	$(MAKE) -C ../services run-detach
 
 clean:
 	rm -rf vendor/
 	rm -rf node_modules/
 
-.PHONY: all check clean container depends
+.PHONY: all check clean container depends run run-services

@@ -39,7 +39,10 @@ migrate: depends
 run: migrate
 	$(COMPOSE) up node
 
-container: depends Dockerfile
+run-detach: migrate
+	$(COMPOSE) up -d node
+
+container: depends check Dockerfile
 	docker build -t $(IMAGE_NAME):latest .
 
 container-check: container check
@@ -49,4 +52,4 @@ clean:
 	rm -rf node_modules
 	docker rmi $$(docker images -q -f "reference=$(IMAGE_NAME)") || true
 
-.PHONY: all check clean container depends migrate unit acceptance
+.PHONY: all check clean container depends migrate unit acceptance run run-detach
