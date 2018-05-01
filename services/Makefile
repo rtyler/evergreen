@@ -42,6 +42,9 @@ run: migrate
 run-detach: migrate
 	$(COMPOSE) up -d node
 
+stop:
+	$(COMPOSE) stop
+
 container: depends check Dockerfile
 	docker build -t $(IMAGE_NAME):latest .
 
