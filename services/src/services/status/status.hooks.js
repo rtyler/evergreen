@@ -73,13 +73,13 @@ class StatusHooks {
     const updates = context.app.service('update');
     const result = await updates.find();
 
-    if (result.total == 0) {
+    if (result.size == 0) {
       throw new Error('Failed to find the latest `general` updates for instance creation');
     }
     /*
       * The result returned is a paginated object
       */
-    context.data.updateId = result.data[0].id;
+    context.data.updateId = result[0].id;
     return context;
   }
 }
