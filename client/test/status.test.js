@@ -62,4 +62,16 @@ describe('The status module', () => {
       assert.equal(result['Jenkins-Version'], '2.116');
     });
   });
+
+  describe('authenticate()', () => {
+    let s = new Status(app);
+
+    it('should store the token', () => {
+      let token = 'sekret';
+      let uuid = 'ohai';
+      s.authenticate(uuid, token);
+      assert.equal(s.uuid, uuid);
+      assert.equal(s.token, token);
+    });
+  });
 });

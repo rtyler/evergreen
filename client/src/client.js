@@ -11,6 +11,7 @@ const createCron     = require('./lib/periodic');
 const Registration   = require('./lib/registration');
 const Status         = require('./lib/status');
 const ErrorTelemetry = require('./lib/error-telemetry');
+const Update         = require('./lib/update');
 
 /*
  * The Client class is a simple wrapper meant to start the basics of the client
@@ -21,6 +22,7 @@ class Client {
     this.app = feathers();
     this.reg = new Registration(this.app);
     this.status = new Status(this.app);
+    this.update = new Update(this.app);
     this.errorTelemetry = new ErrorTelemetry(this.app);
   }
 
@@ -31,11 +33,18 @@ class Client {
      * otherwise it's not really useful to have anything running periodically
      */
     const cron = createCron(app);
-    this.status.authenticate(token);
-    this.status.create(this.reg.uuid);
 
+    this.status.authenticate(this.reg.uuid, token);
+    this.update.authenticate(this.reg.uuid, token);
+
+    this.status.create().then(() => {
+      logger.info('Status created, checking for updates');
+      this.update.query().then((ups) => {
+        logger.info('Updates available', ups);
+      });
+    });
     cron.runHourly('post-status', () => {
-      this.status.create(this.reg.uuid);
+      this.status.create();
     });
 
     setInterval( () => {
