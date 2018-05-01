@@ -24,12 +24,20 @@ class Update {
   async query() {
     let api = this.app.service('update');
     return api.find({
-      headers: { Authorization: this.token }
+      headers: { Authorization: this.token },
+      query: {
+        level: this.getCurrentLevel(),
+      },
     }).then((res) => {
       logger.info('Update.query() => ', res);
     }).catch((err) => {
       logger.error('Update.query() => ', err);
     });
+  }
+
+  getCurrentLevel() {
+    // TODO: actually store and retrieve the update level :)
+    return 0;
   }
 }
 
