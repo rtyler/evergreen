@@ -71,16 +71,7 @@ class StatusHooks {
    */
   async defaultUpdateLevel(context) {
     const updates = context.app.service('update');
-    const result = await updates.find({
-      query: {
-        tainted: false,
-        channel: 'general',
-        $limit: 1,
-        $sort: {
-          createdAt: -1,
-        }
-      },
-    });
+    const result = await updates.find();
 
     if (result.total == 0) {
       throw new Error('Failed to find the latest `general` updates for instance creation');
