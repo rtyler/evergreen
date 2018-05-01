@@ -26,6 +26,15 @@ class Client {
     this.errorTelemetry = new ErrorTelemetry(this.app);
   }
 
+  statusAndUpdate() {
+    this.status.create().then(() => {
+      logger.info('Status created, checking for updates');
+      this.update.query().then((ups) => {
+        logger.info('Updates available', ups);
+      });
+    });
+  }
+
   runloop(app, token) {
     logger.info('..starting runloop');
     /*
@@ -37,14 +46,13 @@ class Client {
     this.status.authenticate(this.reg.uuid, token);
     this.update.authenticate(this.reg.uuid, token);
 
-    this.status.create().then(() => {
-      logger.info('Status created, checking for updates');
-      this.update.query().then((ups) => {
-        logger.info('Updates available', ups);
-      });
-    });
+    this.statusAndUpdate();
+
     cron.runHourly('post-status', () => {
       this.status.create();
+    });
+    cron.runDaily('check-for-updates', () => {
+      this.statusAndUpdate();
     });
 
     setInterval( () => {
