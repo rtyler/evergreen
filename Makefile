@@ -33,7 +33,7 @@ containers: container
 publish: container
 	docker push ${JENKINS_CONTAINER}:latest
 
-run:# check container
+run:
 	$(COMPOSE) up
 
 clean:
