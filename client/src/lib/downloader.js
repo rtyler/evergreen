@@ -9,6 +9,7 @@ const url    = require('url');
 
 const fetch  = require('node-fetch');
 const logger = require('winston');
+const mkdirp = require('mkdirp');
 
 class Downloader {
   constructor() {
@@ -16,22 +17,31 @@ class Downloader {
 
   download(item) {
     const u = url.parse(item);
-    const filename = path.basename(u.pathname);
+    const dir = [process.env.EVERGREEN_HOME,
+      'jenkins',
+      'home',
+      'plugins'].join(path.sep);
+    mkdirp.sync(dir);
+    const filename = [dir, path.basename(u.pathname)].join(path.sep);
+
     logger.info('Fetching %s and saving to %s', item, filename);
+
     return new Promise((resolve, reject) => {
       fetch(item).then((res) => {
         const output = fs.createWriteStream(filename);
-        res.body.pipe(output);
+
         output.on('close', () => {
           logger.debug('Downloaded %s (%d bytes)',
             filename, output.bytesWritten);
           resolve(output);
         });
+
         output.on('error', err => reject(err));
+
+        res.body.pipe(output);
       });
     });
   }
-
 }
 
 module.exports = new Downloader();
