@@ -51,8 +51,8 @@ class Registration {
       logger.info('Checking registration status..');
       if (self.hasKeys()) {
         logger.info('We have keys and a UUID already');
-        this.loadKeysSync();
-        this.loadUUIDSync();
+        self.loadKeysSync();
+        self.loadUUIDSync();
         return self.login().then(res => resolve(res));
       }
       else {
