@@ -2,6 +2,7 @@
 //const ensureMatchingUUID = require('../../hooks/ensureuuid');
 const authentication = require('@feathersjs/authentication');
 
+
 class UpdateHooks {
   constructor() {
   }
@@ -55,6 +56,39 @@ class UpdateHooks {
     return context;
   }
 
+  terribleHardCodedDefault(context) {
+    const manifest = {
+      'schema' : 1,
+      'meta' : {
+        'level' : context.result[0].id,
+        'channel' : 'general'
+      },
+      'core' : {
+        'url' : 'http://mirrors.jenkins.io/war/latest/jenkins.war',
+        'checksum' : {
+          'type' : 'sha256',
+          'signature' : '246c298e9f9158f21b931e9781555ae83fcd7a46e509522e3770b9d5bdc88628'
+        }
+      },
+      'plugins' : {
+        'updates' : [
+          {
+            'url' : 'http://mirrors.jenkins.io/plugins/git-client/2.7.1/git-client.hpi',
+            'checksum' : {
+              'type' : 'sha256',
+              'signature' : '192f32b9d8c60c2471d99517b512316c2398e582eeb153290508b4319d7b03ab'
+            }
+          }
+        ]
+      },
+      'client' : {
+      }
+    };
+
+    context.result = manifest;
+    return context;
+  }
+
   getHooks() {
     return {
       before: {
@@ -72,7 +106,11 @@ class UpdateHooks {
         remove: []
       },
 
-      after: {},
+      after: {
+        find: [
+          this.terribleHardCodedDefault,
+        ],
+      },
       error: {}
     };
   }

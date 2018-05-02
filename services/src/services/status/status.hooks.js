@@ -79,7 +79,7 @@ class StatusHooks {
     /*
       * The result returned is a paginated object
       */
-    context.data.updateId = result[0].id;
+    context.data.updateId = result.meta.level;
     return context;
   }
 }
