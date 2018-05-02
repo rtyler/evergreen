@@ -13,6 +13,8 @@ const Status         = require('./lib/status');
 const ErrorTelemetry = require('./lib/error-telemetry');
 const Update         = require('./lib/update');
 
+const Downloader     = require('./lib/downloader');
+
 /*
  * The Client class is a simple wrapper meant to start the basics of the client
  * and then run a simple runloop to block the client from ever exiting
@@ -30,7 +32,15 @@ class Client {
     this.status.create().then(() => {
       logger.info('Status created, checking for updates');
       this.update.query().then((ups) => {
-        logger.info('Updates available', ups);
+        if (ups) {
+          logger.info('Updates available', ups);
+          ups.plugins.updates.forEach((plugin) => {
+            logger.info('Fetching ', plugin.url);
+            Downloader.download(plugin.url).then(() => {
+              logger.info('download complete');
+            });
+          });
+        }
       });
     });
   }

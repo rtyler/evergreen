@@ -4,9 +4,6 @@
  *  https://github.com/jenkinsci/jep/tree/master/jep/307
  */
 
-const logger = require('winston');
-
-
 class Update {
   constructor(app, options) {
     this.options = options || {};
@@ -28,10 +25,6 @@ class Update {
       query: {
         level: this.getCurrentLevel(),
       },
-    }).then((res) => {
-      logger.info('Update.query() => ', res);
-    }).catch((err) => {
-      logger.error('Update.query() => ', err);
     });
   }
 
