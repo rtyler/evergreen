@@ -46,7 +46,7 @@ class Registration {
    */
   async register() {
     let self = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       let api = self.app.service('registration');
       logger.info('Checking registration status..');
       if (self.hasKeys()) {
