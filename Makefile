@@ -13,19 +13,13 @@ lint: configuration/essentials.yaml configuration/jenkins-configuration.yaml shu
 	./tools/yamllint -s configuration/essentials.yaml
 	./tools/yamllint -s configuration/jenkins-configuration.yaml
 	./tools/shellcheck -x tests/tests.sh
-	./tools/shellcheck -x scripts/*.sh
 
 check: lint
 	$(MAKE) -C client $@
 	$(MAKE) -C services $@
 	$(MAKE) container-check
 
-container-prereqs: build/jenkins-support build/jenkins.sh scripts/shim-startup-wrapper.sh build-plugins
-	$(MAKE) -C client depends
-	$(MAKE) -C services depends
-
-build-plugins:
-	./scripts/build-plugins.sh
+container-prereqs: build/jenkins-support build/jenkins.sh
 
 container-check: shunit2 ./tests/tests.sh containers
 	./tests/tests.sh
@@ -39,16 +33,12 @@ containers: container
 publish: container
 	docker push ${JENKINS_CONTAINER}:latest
 
-update-center.json:
-	$(DOWNLOAD) https://updates.jenkins.io/current/update-center.actual.json > update-center.json
-
-run: check container
+run:# check container
 	$(COMPOSE) up
 
 clean:
 	$(COMPOSE) down || true
 	docker rmi $$(docker images -q -f "reference=$(JENKINS_CONTAINER)") || true
-	rm -f update-center.json
 	$(MAKE) -C client $@
 	$(MAKE) -C services $@
 	rm -f build/docker-compose
@@ -70,4 +60,4 @@ build/jenkins-support:
 shunit2:
 	git clone --depth 1 https://github.com/kward/shunit2
 
-.PHONY: all check clean container container-check container-prereqs build-plugins
+.PHONY: all check clean container container-check container-prereqs

@@ -15,12 +15,8 @@ class Downloader {
   constructor() {
   }
 
-  download(item) {
+  download(item, dir) {
     const u = url.parse(item);
-    const dir = [process.env.EVERGREEN_HOME,
-      'jenkins',
-      'home',
-      'plugins'].join(path.sep);
     mkdirp.sync(dir);
     const filename = [dir, path.basename(u.pathname)].join(path.sep);
 

@@ -2,18 +2,19 @@
  * This is the main entrypoint for the evergreen-client
  */
 
-const feathers     = require('@feathersjs/feathers');
-const fetch        = require('node-fetch');
-const logger       = require('winston');
-const rest         = require('@feathersjs/rest-client');
+const path = require('path');
+
+const feathers = require('@feathersjs/feathers');
+const fetch    = require('node-fetch');
+const logger   = require('winston');
+const rest     = require('@feathersjs/rest-client');
 
 const createCron     = require('./lib/periodic');
+const Downloader     = require('./lib/downloader');
+const ErrorTelemetry = require('./lib/error-telemetry');
 const Registration   = require('./lib/registration');
 const Status         = require('./lib/status');
-const ErrorTelemetry = require('./lib/error-telemetry');
 const Update         = require('./lib/update');
-
-const Downloader     = require('./lib/downloader');
 
 /*
  * The Client class is a simple wrapper meant to start the basics of the client
@@ -34,10 +35,21 @@ class Client {
       this.update.query().then((ups) => {
         if (ups) {
           logger.info('Updates available', ups);
+
+          const dir = [process.env.EVERGREEN_HOME,
+            'jenkins',
+            'home'].join(path.sep);
+
+          if (ups.core.url) {
+            Downloader.download(ups.core.url, dir).then((stream) => {
+              logger.info('Core downloaded', stream.path);
+            });
+          }
+
           ups.plugins.updates.forEach((plugin) => {
             logger.info('Fetching ', plugin.url);
-            Downloader.download(plugin.url).then(() => {
-              logger.info('download complete');
+            Downloader.download(plugin.url, [dir, 'plugins'].join(path.sep)).then((stream) => {
+              logger.info('download complete', stream.path);
             });
           });
         }
