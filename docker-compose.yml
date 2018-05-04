@@ -12,11 +12,12 @@ services:
     image: jenkinsciinfra/evergreen-backend
     build: ./services
     environment:
-      - 'POSTGRES_PASSWORD=grassisevergreener'
+      - 'PGPASSWORD=grassisevergreener'
     ports:
       - '3030:3030'
     depends_on:
       - db
+    command: ['wait-for-postgres.sh', "db", "5432", "/usr/local/bin/npm", "run", "start"]
 
   instance:
     image: jenkins/evergreen

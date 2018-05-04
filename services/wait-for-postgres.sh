@@ -15,7 +15,7 @@ cmd="$@"
 
 maxAttempts=10
 
-until PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -p "$port" -U "postgres" -c '\q'; do
+until psql -h "$host" -p "$port" -U "postgres" -c '\q'; do
   maxAttempts=$(( $maxAttempts - 1 ))
   if [[ $maxAttempts <= 0 ]]; then
     >&2 echo "Maximum number of attempts reached: exitting"
