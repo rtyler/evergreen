@@ -152,7 +152,7 @@ class Registration {
   }
 
   loadUUIDSync() {
-    let config = fs.readFileSync(this.uuidPath(), this.fileOptions);
+    let config = JSON.parse(fs.readFileSync(this.uuidPath(), this.fileOptions));
     this.uuid = config.uuid;
     return (!!this.uuid);
   }
