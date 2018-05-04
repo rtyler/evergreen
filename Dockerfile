@@ -63,14 +63,6 @@ RUN cd /tmp && \
     rmdir docker && \
     rm docker.tar.gz
 
-# FIXME REMOVE when war & plugins are downloaded by client
-# see also shim-startup-wrapper.sh
-RUN apk add --no-cache curl aria2 # used by shim-startup-wrapper.sh
-COPY scripts/download-latest-war.sh /usr/local/bin/download-latest-war.sh
-RUN download-latest-war.sh
-COPY scripts/plugins.aria /plugins.aria
-# end HACK downloading shim
-
 COPY configuration/logging.properties $EVERGREEN_HOME/logging.properties
 
 # Jenkins is run with user `jenkins`, uid = 1000
