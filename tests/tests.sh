@@ -9,18 +9,6 @@ JENKINS_HOME=to_override
 # shellcheck source=tests/utilities
 . "$current_directory/utilities"
 
-# trick to silence shellcheck which does not handle very well variables coming from sourced file
-export container_under_test=${container_under_test:?}
-
-oneTimeSetUp() {
-  setup_container_under_test
-  # shellcheck disable=SC2016
-  JENKINS_HOME="$( docker exec "$container_under_test" bash -c 'echo $JENKINS_HOME' )"
-}
-
-oneTimeTearDown() {
-  cleanup
-}
 
 test_smoke() {
   docker exec "$container_under_test" ps aux | grep npm > /dev/null
@@ -37,37 +25,11 @@ test_smoke() {
 
 }
 
-# JENKINS-49864
-test_docker_CLI_available() {
-  docker exec "$container_under_test" which docker > /dev/null
-  assertEquals "docker found in the PATH" 0 $?
-
-  # Check that not only something called docker can be found on the PATH
-  # but is actually looking more like it using a specific command call
-  output=$( docker exec "$container_under_test" docker version 2>&1 )
-  assertEquals "error is expected since no Docker daemon $?" 1 $?
-
-  echo "$output" | \
-      grep "Cannot connect to the Docker daemon" > /dev/null
-  assertEquals "expected message about daemon unavailable" 0 $?
-}
-
 # JENKINS-49861
 test_no_executor() {
   numExecutors=$( docker exec "$container_under_test" cat "$JENKINS_HOME/config.xml" | \
       grep '<numExecutors>0</numExecutors>' | tr -d ' ' )
   assertEquals "<numExecutors>0</numExecutors>" "$numExecutors"
-}
-
-# JENKINS-50195
-test_not_root() {
-  username=$( docker exec "$container_under_test" whoami )
-  assertEquals "jenkins" "$username"
-
-  for process_user in $( docker exec "$container_under_test" ps -o user | grep -v USER)
-  do
-    assertEquals "jenkins" "$process_user"
-  done
 }
 
 # JENKINS-49406 check data segregation
@@ -139,7 +101,6 @@ test_metrics_health_check() {
 
 # JENKINS-49811
 test_logs_are_propagated() {
-
   result=$( $COMPOSE exec -T instance curl -s http://backend:3030/errorTelemetry | \
               jq -r '.[0].log' )
   assertEquals "$result should be not empty and JSON" "0" "$?"
@@ -152,28 +113,6 @@ test_logs_are_propagated() {
   # Depends on https://github.com/jenkinsci/essentials-plugin/blob/0d7ee52820db08f5790d79c189a88e2237cfe902/src/main/java/io/jenkins/plugins/essentials/logging/EssentialsLoggingConfigurer.java#L34 being the first
   echo "$result" | grep EssentialsLoggingConfigurer > /dev/null
   assertEquals "$result should contain the log from the Essentials Jenkins plugin" "0" "$?"
-
-}
-
-# Check NPM is 5+ to make sure we do check the integrity values
-# https://github.com/jenkins-infra/evergreen/pull/60#discussion_r182666012
-test_npm_5_plus() {
-  result=$( docker exec "$container_under_test" npm --version )
-  assertEquals "5." "${result:0:2}"
-}
-
-# Ensure that we can successfully connect to only Let's Encrypt authorized
-# sites. See JEP-307
-test_jep_307() {
-  result=$( docker exec "$container_under_test" curl -s https://jenkins.io/ )
-  assertEquals "jenkins.io should be OK" "0" "$?"
-
-  # Incrementals, like https://repo.jenkins-ci.org/incrementals/org/jenkins-ci/main/jenkins-war/maven-metadata.xml
-  result=$( docker exec "$container_under_test" curl -s https://repo.jenkins-ci.org )
-  assertEquals "Incrementals repo should be OK" "0" "$?"
-
-  result=$( docker exec "$container_under_test" curl -s https://sonic.com/ )
-  assertEquals "everything else should be KO" "60" "$?"
 }
 
 . ./shunit2/shunit2

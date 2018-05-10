@@ -22,6 +22,7 @@ check: lint
 container-prereqs: build/jenkins-support build/jenkins.sh
 
 container-check: shunit2 ./tests/tests.sh containers
+	./tests/offline-tests.sh
 	./tests/tests.sh
 
 container: container-prereqs Dockerfile configuration/supervisord.conf

@@ -53,7 +53,8 @@ RUN apk add --no-cache git \
                         bash \
                         supervisor \
                         nodejs \
-                        ttf-dejavu
+                        ttf-dejavu \
+                        curl
 
 # TODO: add a checksum check?
 RUN cd /tmp && \

@@ -1,5 +1,4 @@
-apps/
 client/test
-jenkins.home/
+services/
 tools/
-updatesrv/
+tests/
