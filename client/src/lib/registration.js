@@ -251,15 +251,15 @@ class Registration {
    * @return String
    */
   publicKeyPath() {
-    return [this.keyPath(), 'evergreen.pub'].join(path.sep);
+    return path.join(this.keyPath(), 'evergreen.pub');
   }
 
   privateKeyPath() {
-    return [this.keyPath(), 'evergreen-private-key'].join(path.sep);
+    return path.join(this.keyPath(), 'evergreen-private-key');
   }
 
   uuidPath() {
-    return [this.keyPath(), 'uuid.json'].join(path.sep);
+    return path.join(this.keyPath(), 'uuid.json');
   }
 }
 

@@ -36,9 +36,9 @@ class Client {
         if (ups) {
           logger.info('Updates available', ups);
 
-          const dir = [process.env.EVERGREEN_HOME,
+          const dir = path.join(process.env.EVERGREEN_HOME,
             'jenkins',
-            'home'].join(path.sep);
+            'home');
 
           if (ups.core.url) {
             Downloader.download(ups.core.url, dir).then((stream) => {
@@ -48,7 +48,7 @@ class Client {
 
           ups.plugins.updates.forEach((plugin) => {
             logger.info('Fetching ', plugin.url);
-            Downloader.download(plugin.url, [dir, 'plugins'].join(path.sep)).then((stream) => {
+            Downloader.download(plugin.url, path.join(dir, 'plugins')).then((stream) => {
               logger.info('download complete', stream.path);
             });
           });
