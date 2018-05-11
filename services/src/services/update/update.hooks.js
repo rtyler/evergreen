@@ -1,7 +1,5 @@
 
-//const ensureMatchingUUID = require('../../hooks/ensureuuid');
 const authentication = require('@feathersjs/authentication');
-
 
 class UpdateHooks {
   constructor() {
@@ -57,6 +55,12 @@ class UpdateHooks {
   }
 
   terribleHardCodedDefault(context) {
+    if (context.result.length == 0) {
+      // TODO set 304 Not Modified
+      context.result = {};
+      return context;
+    }
+
     const manifest = {
       'schema' : 1,
       'meta' : {

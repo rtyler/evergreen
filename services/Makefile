@@ -46,8 +46,7 @@ run-detach: migrate
 stop:
 	$(COMPOSE) stop
 
-dump: stop
-	$(MAKE) migrate
+dump: stop migrate
 	$(COMPOSE) run --rm db pg_dump \
 		--inserts \
 		-h db -U postgres -d evergreen_development > $(DB_DUMP)
