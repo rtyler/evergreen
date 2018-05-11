@@ -2,8 +2,14 @@ NODE:=../tools/node
 
 all: check
 
-check: depends
-	$(NODE) npm test
+lint:
+	$(NODE) npm run eslint
+
+check: depends lint
+	$(MAKE) unit
+
+unit:
+	$(NODE) npm run jest
 
 depends: node_modules
 
@@ -27,4 +33,5 @@ clean:
 	rm -rf vendor/
 	rm -rf node_modules/
 
-.PHONY: all check clean container depends run run-services
+.PHONY: all check clean container depends run run-services \
+	unit lint

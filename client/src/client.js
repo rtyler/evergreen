@@ -33,7 +33,11 @@ class Client {
     this.status.create().then(() => {
       logger.info('Status created, checking for updates');
       this.update.query().then((ups) => {
-        if (ups) {
+        if (process.env.EVERGREEN_OFFLINE) {
+          logger.info('Evergreen in offline mode, disabling downloading of updates..');
+        }
+
+        if ((ups) && (!process.env.EVERGREEN_OFFLINE)) {
           logger.info('Updates available', ups);
 
           const dir = path.join(process.env.EVERGREEN_HOME,
