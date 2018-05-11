@@ -9,6 +9,8 @@ const logger = require('winston');
 const path   = require('path');
 const mkdirp = require('mkdirp');
 
+const storage = require('./storage');
+
 require('./rand-patch');
 
 class Registration {
@@ -199,20 +201,6 @@ class Registration {
     return true;
   }
 
-
-  /*
-   * Returns the default home directory or the value of EVERGREEN_HOME
-   */
-  homeDirectory() {
-    /* The default home directory is /evergreen, see the Dockerfile in the root
-     * directory of th repository
-     */
-    if (!process.env.EVERGREEN_HOME) {
-      return '/evergreen';
-    }
-    return process.env.EVERGREEN_HOME;
-  }
-
   /*
    * Determine whether the keys are already present on the filesystem
    *
@@ -238,7 +226,7 @@ class Registration {
    * @return String
    */
   keyPath() {
-    const keys = [this.homeDirectory(), 'keys'].join(path.sep);
+    const keys = path.join(storage.homeDirectory(), 'keys');
 
     /* Only bother making the directory if it doesn't already exist */
     try {

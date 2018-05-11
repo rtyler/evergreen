@@ -179,13 +179,6 @@ describe('The registration module', () => {
     });
   });
 
-  describe('homeDirectory()', () => {
-    it('should return a path', () => {
-      const p = (new Registration()).homeDirectory();
-      assert(p != path.basename(p), 'This doesn\'t look like a path');
-    });
-  });
-
   describe('uuidPath()', () => {
     it('should return a path', () => {
       const p = (new Registration()).uuidPath();
