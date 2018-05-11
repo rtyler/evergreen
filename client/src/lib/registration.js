@@ -55,7 +55,7 @@ class Registration {
         logger.info('We have keys and a UUID already');
         self.loadKeysSync();
         self.loadUUIDSync();
-        return self.login().then(res => resolve(res));
+        return self.login().then(res => resolve(res, false));
       }
       else {
         if (!self.generateKeys()) {
@@ -75,7 +75,7 @@ class Registration {
             reject('Failed to save UUID!');
           }
           else {
-            return self.login().then(res => resolve(res));
+            return self.login().then(res => resolve(res, true));
           }
         }).catch((res) => {
           logger.error('Failed to register:', res);

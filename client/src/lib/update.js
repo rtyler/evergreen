@@ -29,22 +29,18 @@ class Update {
 
   async query() {
     let api = this.app.service('update');
-    let self = this;
     return api.find({
       headers: { Authorization: this.token },
       query: {
         level: this.getCurrentLevel(),
       }
-    }).then((res) => {
-      self.saveUpdateSync();
-      return res;
     });
   }
 
   getCurrentLevel() {
     this.loadUpdateSync();
     if (this.manifest) {
-      let level = this.manifest.meta.leve;
+      let level = this.manifest.meta.level;
       logger.debug('Currently at update level %d', level);
       return level;
     }

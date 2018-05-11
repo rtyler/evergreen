@@ -14,6 +14,7 @@ const Downloader     = require('./lib/downloader');
 const ErrorTelemetry = require('./lib/error-telemetry');
 const Registration   = require('./lib/registration');
 const Status         = require('./lib/status');
+const Supervisord    = require('./lib/supervisord');
 const Update         = require('./lib/update');
 
 /*
@@ -29,39 +30,44 @@ class Client {
     this.errorTelemetry = new ErrorTelemetry(this.app);
   }
 
-  statusAndUpdate() {
-    this.status.create().then(() => {
-      logger.info('Status created, checking for updates');
-      this.update.query().then((ups) => {
-        if (process.env.EVERGREEN_OFFLINE) {
-          logger.info('Evergreen in offline mode, disabling downloading of updates..');
+  async runUpdates() {
+    return this.update.query().then((ups) => {
+      if (process.env.EVERGREEN_OFFLINE) {
+        logger.info('Evergreen in offline mode, disabling downloading of updates..');
+        return;
+      }
+
+      if (ups) {
+        logger.info('Updates available', ups);
+        let tasks = [];
+
+        const dir = path.join(process.env.EVERGREEN_HOME,
+          'jenkins',
+          'home');
+
+        if (ups.core.url) {
+          tasks.push(Downloader.download(ups.core.url, dir).then((stream) => {
+            logger.info('Core downloaded', stream.path);
+          }));
         }
 
-        if ((ups) && (!process.env.EVERGREEN_OFFLINE)) {
-          logger.info('Updates available', ups);
+        ups.plugins.updates.forEach((plugin) => {
+          logger.info('Fetching ', plugin.url);
+          tasks.push(Downloader.download(plugin.url, path.join(dir, 'plugins')).then((stream) => {
+            logger.info('download complete', stream.path);
+          }));
+        });
 
-          const dir = path.join(process.env.EVERGREEN_HOME,
-            'jenkins',
-            'home');
-
-          if (ups.core.url) {
-            Downloader.download(ups.core.url, dir).then((stream) => {
-              logger.info('Core downloaded', stream.path);
-            });
-          }
-
-          ups.plugins.updates.forEach((plugin) => {
-            logger.info('Fetching ', plugin.url);
-            Downloader.download(plugin.url, path.join(dir, 'plugins')).then((stream) => {
-              logger.info('download complete', stream.path);
-            });
-          });
-        }
-      });
-    });
+        Promise.all(tasks).then(() => {
+          logger.info('All downloads completed, restarting Jenkins');
+          this.update.saveUpdateSync(ups);
+          Supervisord.restartProcess('jenkins');
+        });
+      }
+    }).catch((res) => logger.info('No updates available', res));
   }
 
-  runloop(app, token) {
+  runloop(app) {
     logger.info('..starting runloop');
     /*
      * Only setting on the cron once we have registered and logged in,
@@ -69,16 +75,13 @@ class Client {
      */
     const cron = createCron(app);
 
-    this.status.authenticate(this.reg.uuid, token);
-    this.update.authenticate(this.reg.uuid, token);
-
-    this.statusAndUpdate();
+    this.runUpdates();
 
     cron.runHourly('post-status', () => {
-      this.status.create();
+      // TODO: update status
     });
     cron.runDaily('check-for-updates', () => {
-      this.statusAndUpdate();
+      this.runUpdates();
     });
 
     setInterval( () => {
@@ -102,14 +105,23 @@ class Client {
     }
     // END FIXME
 
-    this.reg.register().then((res) => {
+    this.reg.register().then((res, newRegistration) => {
       logger.debug('Registration returned', res);
+      this.status.authenticate(this.reg.uuid, this.reg.token);
+      this.update.authenticate(this.reg.uuid, this.reg.token);
       /*
        * It is only valid to start the runloop assuming we have been able to
        * register and log in successfully, otherwise the client will exit and
        * supervisord should try again :/
        */
-      this.runloop(this.app, this.reg.token);
+      if (newRegistration) {
+        return this.status.create().then(() => {
+          this.runloop(this.app);
+        });
+      }
+      else {
+        return this.runloop(this.app);
+      }
     });
   }
 
