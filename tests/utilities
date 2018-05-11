@@ -79,12 +79,6 @@ wait_for_jenkins() {
 # trick to silence shellcheck which does not handle very well variables coming from sourced file
 export container_under_test=${container_under_test:?}
 
-oneTimeSetUp() {
-  setup_container_under_test
-  # shellcheck disable=SC2016
-  JENKINS_HOME="$( docker exec "$container_under_test" bash -c 'echo $JENKINS_HOME' )"
-}
-
 oneTimeTearDown() {
   cleanup
 }

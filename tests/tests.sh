@@ -9,6 +9,12 @@ JENKINS_HOME=to_override
 # shellcheck source=tests/utilities
 . "$current_directory/utilities"
 
+oneTimeSetUp() {
+  setup_container_under_test
+  wait_for_jenkins
+  # shellcheck disable=SC2016
+  JENKINS_HOME="$( docker exec "$container_under_test" bash -c 'echo $JENKINS_HOME' )"
+}
 
 test_smoke() {
   docker exec "$container_under_test" ps aux | grep npm > /dev/null

@@ -10,6 +10,12 @@ JENKINS_HOME=to_override
 . "$current_directory/utilities"
 
 
+oneTimeSetUp() {
+  setup_container_under_test
+  # shellcheck disable=SC2016
+  JENKINS_HOME="$( docker exec "$container_under_test" bash -c 'echo $JENKINS_HOME' )"
+}
+
 # JENKINS-49864
 test_docker_CLI_available() {
   docker exec "$container_under_test" which docker > /dev/null
