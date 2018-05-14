@@ -15,6 +15,20 @@ info() {
 
 cleanup () {
   echo
+
+  theDate=$( date +%Y-%m-%d_%H:%M:%S )
+  logsDirectory=build/tests-logs-$theDate
+  mkdir -p $logsDirectory
+  echo -n "Retrieving container logs before shutdown... Logs will be in the $logsDirectory directory"
+  # Normally should be something like evergreen_backend_1, evergreen_db_1 and evergreen_instance_1
+  containers=$( $COMPOSE ps | head -5 | tail -3 | awk '{print $1}' )
+
+  for container in $containers
+  do
+    docker logs $container > $logsDirectory/${container}.log 2>&1
+  done
+  echo "Done getting logs for $containers"
+
   echo -n "Cleaning up... "
   $COMPOSE down
   for container in $( docker ps -aq --filter "name=$container_under_test_prefix" )
