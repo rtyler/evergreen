@@ -61,6 +61,21 @@ describe('The registration module', () => {
     });
   });
 
+  describe('loadUUIDSync()', () => {
+    let uuid = 'just another-fake-uuid';
+    beforeEach(() => {
+      this.reg = new Registration();
+      this.reg.uuid = uuid;
+      this.reg.saveUUIDSync();
+    });
+
+    it('should be able to load the UUID from disk', () => {
+      this.reg.uuid = null;
+      this.reg.loadUUIDSync();
+      assert.equal(this.reg.uuid, uuid);
+    });
+  });
+
   describe('saveKeysSync()', () => {
     it('should return false if there are not keys', () => {
       const r = new Registration();
@@ -161,13 +176,6 @@ describe('The registration module', () => {
       catch (err) {
         assert.equal(err.code, 'ENOENT');
       }
-    });
-  });
-
-  describe('homeDirectory()', () => {
-    it('should return a path', () => {
-      const p = (new Registration()).homeDirectory();
-      assert(p != path.basename(p), 'This doesn\'t look like a path');
     });
   });
 

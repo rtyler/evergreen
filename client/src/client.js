@@ -2,15 +2,20 @@
  * This is the main entrypoint for the evergreen-client
  */
 
-const feathers     = require('@feathersjs/feathers');
-const fetch        = require('node-fetch');
-const logger       = require('winston');
-const rest         = require('@feathersjs/rest-client');
+const path = require('path');
+
+const feathers = require('@feathersjs/feathers');
+const fetch    = require('node-fetch');
+const logger   = require('winston');
+const rest     = require('@feathersjs/rest-client');
 
 const createCron     = require('./lib/periodic');
+const Downloader     = require('./lib/downloader');
+const ErrorTelemetry = require('./lib/error-telemetry');
 const Registration   = require('./lib/registration');
 const Status         = require('./lib/status');
-const ErrorTelemetry = require('./lib/error-telemetry');
+const Supervisord    = require('./lib/supervisord');
+const Update         = require('./lib/update');
 
 /*
  * The Client class is a simple wrapper meant to start the basics of the client
@@ -21,18 +26,64 @@ class Client {
     this.app = feathers();
     this.reg = new Registration(this.app);
     this.status = new Status(this.app);
+    this.update = new Update(this.app);
     this.errorTelemetry = new ErrorTelemetry(this.app);
   }
 
-  runloop(app, token) {
+  async runUpdates() {
+    return this.update.query().then((ups) => {
+      if (process.env.EVERGREEN_OFFLINE) {
+        logger.info('Evergreen in offline mode, disabling downloading of updates..');
+        return;
+      }
+
+      if (ups) {
+        logger.info('Updates available', ups);
+        let tasks = [];
+
+        const dir = path.join(process.env.EVERGREEN_HOME,
+          'jenkins',
+          'home');
+
+        if (ups.core.url) {
+          tasks.push(Downloader.download(ups.core.url, dir).then((stream) => {
+            logger.info('Core downloaded', stream.path);
+          }));
+        }
+
+        ups.plugins.updates.forEach((plugin) => {
+          logger.info('Fetching ', plugin.url);
+          tasks.push(Downloader.download(plugin.url, path.join(dir, 'plugins')).then((stream) => {
+            logger.info('download complete', stream.path);
+          }));
+        });
+
+        Promise.all(tasks).then(() => {
+          logger.info('All downloads completed, restarting Jenkins');
+          this.update.saveUpdateSync(ups);
+          Supervisord.restartProcess('jenkins');
+        });
+      }
+    }).catch((res) => logger.info('No updates available', res));
+  }
+
+  runloop(app) {
     logger.info('..starting runloop');
     /*
      * Only setting on the cron once we have registered and logged in,
      * otherwise it's not really useful to have anything running periodically
      */
-    createCron(app);
-    this.status.authenticate(token);
-    this.status.create(this.reg.uuid);
+    const cron = createCron(app);
+
+    this.runUpdates();
+
+    cron.runHourly('post-status', () => {
+      // TODO: update status
+    });
+    cron.runDaily('check-for-updates', () => {
+      this.runUpdates();
+    });
+
     setInterval( () => {
       /* no-op to keep this process alive */
     }, 10);
@@ -54,14 +105,23 @@ class Client {
     }
     // END FIXME
 
-    this.reg.register().then((res) => {
+    this.reg.register().then((res, newRegistration) => {
       logger.debug('Registration returned', res);
+      this.status.authenticate(this.reg.uuid, this.reg.token);
+      this.update.authenticate(this.reg.uuid, this.reg.token);
       /*
        * It is only valid to start the runloop assuming we have been able to
        * register and log in successfully, otherwise the client will exit and
        * supervisord should try again :/
        */
-      this.runloop(this.app, this.reg.token);
+      if (newRegistration) {
+        return this.status.create().then(() => {
+          this.runloop(this.app);
+        });
+      }
+      else {
+        return this.runloop(this.app);
+      }
     });
   }
 

@@ -9,6 +9,8 @@ const logger = require('winston');
 const path   = require('path');
 const mkdirp = require('mkdirp');
 
+const storage = require('./storage');
+
 require('./rand-patch');
 
 class Registration {
@@ -46,14 +48,14 @@ class Registration {
    */
   async register() {
     let self = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       let api = self.app.service('registration');
       logger.info('Checking registration status..');
       if (self.hasKeys()) {
         logger.info('We have keys and a UUID already');
-        this.loadKeysSync();
-        this.loadUUIDSync();
-        return self.login().then(res => resolve(res));
+        self.loadKeysSync();
+        self.loadUUIDSync();
+        return self.login().then(res => resolve(res, false));
       }
       else {
         if (!self.generateKeys()) {
@@ -73,7 +75,7 @@ class Registration {
             reject('Failed to save UUID!');
           }
           else {
-            return self.login().then(res => resolve(res));
+            return self.login().then(res => resolve(res, true));
           }
         }).catch((res) => {
           logger.error('Failed to register:', res);
@@ -152,7 +154,7 @@ class Registration {
   }
 
   loadUUIDSync() {
-    let config = fs.readFileSync(this.uuidPath(), this.fileOptions);
+    let config = JSON.parse(fs.readFileSync(this.uuidPath(), this.fileOptions));
     this.uuid = config.uuid;
     return (!!this.uuid);
   }
@@ -199,20 +201,6 @@ class Registration {
     return true;
   }
 
-
-  /*
-   * Returns the default home directory or the value of EVERGREEN_HOME
-   */
-  homeDirectory() {
-    /* The default home directory is /evergreen, see the Dockerfile in the root
-     * directory of th repository
-     */
-    if (!process.env.EVERGREEN_HOME) {
-      return '/evergreen';
-    }
-    return process.env.EVERGREEN_HOME;
-  }
-
   /*
    * Determine whether the keys are already present on the filesystem
    *
@@ -238,7 +226,7 @@ class Registration {
    * @return String
    */
   keyPath() {
-    const keys = [this.homeDirectory(), 'keys'].join(path.sep);
+    const keys = path.join(storage.homeDirectory(), 'keys');
 
     /* Only bother making the directory if it doesn't already exist */
     try {
@@ -263,15 +251,15 @@ class Registration {
    * @return String
    */
   publicKeyPath() {
-    return [this.keyPath(), 'evergreen.pub'].join(path.sep);
+    return path.join(this.keyPath(), 'evergreen.pub');
   }
 
   privateKeyPath() {
-    return [this.keyPath(), 'evergreen-private-key'].join(path.sep);
+    return path.join(this.keyPath(), 'evergreen-private-key');
   }
 
   uuidPath() {
-    return [this.keyPath(), 'uuid.json'].join(path.sep);
+    return path.join(this.keyPath(), 'uuid.json');
   }
 }
 

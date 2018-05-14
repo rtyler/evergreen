@@ -1,9 +1,18 @@
 const errors = require('@feathersjs/errors');
 const logger = require('winston');
 
-/* Ensure that the given UUID matches the UUID inside of the JWT
+/*
+ * Ensure that the given UUID matches the UUID inside of the JWT
+ *
+ * DOES NOT APPLY TO INTERNAL CALLS
  */
 module.exports = function(context) {
+
+  /* This is an internal call and should be allowed */
+  if (!context.params.provider) {
+    return context;
+  }
+
   if (!context.data.uuid) {
     logger.error('Receiving a request without a valid UUID', context.data);
     throw new errors.BadRequest('Invalid UUID');

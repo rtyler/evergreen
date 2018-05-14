@@ -22,8 +22,20 @@ class Periodic {
   runHourly(name, callback) {
     logger.info(`Registering periodic hourly task: ${name}`);
     let schedule = `${this.offset} * * * *`;
-    this.jobs[name] = new cron.CronJob(schedule, callback);
-    return !!(this.jobs[name]);
+    return this.runOnSchedule(name, schedule, callback);
+  }
+
+  runDaily(name, callback) {
+    logger.info(`Registering periodic dailytask: ${name}`);
+    let schedule = `${this.offset} 3 * * *`;
+    return this.runOnSchedule(name, schedule, callback);
+  }
+
+  runOnSchedule(name, schedule, callback) {
+    let job = new cron.CronJob(schedule, callback);
+    this.jobs[name] = job;
+    job.start();
+    return !!(job);
   }
 
   /*

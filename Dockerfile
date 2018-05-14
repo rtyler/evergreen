@@ -11,6 +11,7 @@ ENV EVERGREEN_ENDPOINT=http://127.0.0.1:3030/
 ENV EVERGREEN_HOME /evergreen
 
 ENV JENKINS_HOME ${EVERGREEN_HOME}/jenkins/home
+ENV JENKINS_WAR ${JENKINS_HOME}/jenkins.war
 ENV JENKINS_VAR ${EVERGREEN_HOME}/jenkins/var
 ENV JENKINS_AGENT_PORT ${agent_port}
 ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
@@ -40,7 +41,6 @@ EXPOSE ${http_port}
 # will be used by attached agents:
 EXPOSE ${agent_port}
 
-
 # Add the system dependencies for running Jenkins effectively
 #
 # The only dependencies for Jenkins Essentials are:
@@ -53,7 +53,8 @@ RUN apk add --no-cache git \
                         bash \
                         supervisor \
                         nodejs \
-                        ttf-dejavu
+                        ttf-dejavu \
+                        curl
 
 # TODO: add a checksum check?
 RUN cd /tmp && \
@@ -62,14 +63,6 @@ RUN cd /tmp && \
     mv docker/* /usr/local/bin && \
     rmdir docker && \
     rm docker.tar.gz
-
-# FIXME REMOVE when war & plugins are downloaded by client
-# see also shim-startup-wrapper.sh
-RUN apk add --no-cache curl aria2 # used by shim-startup-wrapper.sh
-COPY scripts/download-latest-war.sh /usr/local/bin/download-latest-war.sh
-RUN download-latest-war.sh
-COPY scripts/plugins.aria /plugins.aria
-# end HACK downloading shim
 
 COPY configuration/logging.properties $EVERGREEN_HOME/logging.properties
 
@@ -92,14 +85,11 @@ RUN /usr/local/sbin/generate-ca-certificates
 RUN mkdir -p /usr/local/bin
 COPY build/jenkins.sh /usr/local/bin/
 COPY build/jenkins-support /usr/local/bin/
-COPY scripts/shim-startup-wrapper.sh /usr/local/bin
 
 # FIXME (?): what if the end users touches the config value?
 # as is, we'll override it.
 COPY configuration/jenkins-configuration.yaml /usr/share/jenkins/ref/jenkins.yaml
 ENV CASC_JENKINS_CONFIG=$JENKINS_HOME/jenkins.yaml
-
-COPY build/*.hpi /usr/share/jenkins/ref/plugins/
 
 # Ensure the supervisord configuration is copied and executed by default such
 # that the Jenkins and evergreen-client processes both execute properly

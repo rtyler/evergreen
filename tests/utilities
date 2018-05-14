@@ -2,7 +2,6 @@ container_under_test_prefix=evergreen-testing
 container_under_test=$container_under_test_prefix-$RANDOM
 COMPOSE="./tools/compose"
 
-
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
@@ -41,14 +40,20 @@ setup_container_under_test() {
   info "Start containers under test (port=$TEST_PORT) and wait a bit for its startup:"
   #docker run --rm --name $container_under_test -p $TEST_PORT:8080 -d jenkins/evergreen:latest
   $COMPOSE up -d
+  sleep 3
+  determine_container_name
+}
 
+determine_container_name() {
+  docker ps
+  container_under_test=$( docker ps --filter "name=instance" --format='{{.Names}}' )
+}
+
+wait_for_jenkins() {
   # FIXME: FLAKY matching
   # evergreen_instance_1 could be not the only one, also what do we do if preexisting containers are running?
   echo "Running containers (beware, ideally there should be none to avoid issues)"
-  docker ps
-
-  container_under_test=$( docker ps --filter "name=instance" --format='{{.Names}}' )
-  sleep 5
+  determine_container_name
 
   # FIXME: have to wait pretty long because plugin installations
   # Possibly we'll want a special mode to accelerate testing, maybe by downloading plugins
@@ -70,3 +75,12 @@ setup_container_under_test() {
     sleep $cur_attempts
   done
 }
+
+# trick to silence shellcheck which does not handle very well variables coming from sourced file
+export container_under_test=${container_under_test:?}
+
+oneTimeTearDown() {
+  cleanup
+}
+
+# vim: ft=sh

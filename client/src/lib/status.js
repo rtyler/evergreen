@@ -10,6 +10,7 @@ class Status {
   constructor(app, options) {
     this.options = options || {};
     this.token = null;
+    this.uuid = null;
     this.app = app;
   }
 
@@ -21,14 +22,16 @@ class Status {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
 
-  authenticate(token) {
+  authenticate(uuid, token) {
+    this.uuid = uuid;
     this.token = token;
+    return this;
   }
 
-  async create(uuid) {
+  async create() {
     let api = this.app.service('status');
     let record = {
-      uuid: uuid,
+      uuid: this.uuid,
       timezone: this.getTimezone(),
     };
     return api.create(record, {
@@ -47,6 +50,9 @@ class Status {
          */
         if (err.code != 400) {
           logger.error('Failed to create a Status record', err);
+        }
+        else {
+          logger.debug('Status record not changed');
         }
       });
   }

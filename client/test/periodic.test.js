@@ -13,6 +13,13 @@ describe('The periodic module', () => {
     });
   });
 
+  describe('runDaily()', () => {
+    it('allows registration of a daily callback', () => {
+      let p = periodic(app);
+      assert.ok(p.runDaily('jest-fun', () => { }));
+    });
+  });
+
   describe('computeOffset()', () => {
     let p = periodic(app);
 
