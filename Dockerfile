@@ -99,7 +99,6 @@ CMD /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 WORKDIR $EVERGREEN_HOME
 
 RUN time chown -R $user:$group $EVERGREEN_HOME
-
 USER $user
 
 # Prepare the evergreen-client configuration
@@ -112,5 +111,11 @@ RUN touch ${JENKINS_VAR}/logs/essentials.log.0
 
 # Jenkins directory is a volume, so configuration and build history
 # can be persisted and survive image upgrades
-# Important: this must be done *after* the chown above
+# Important: this must be done *after* the chown
+
+# a mess-checker to accomodate https://stackoverflow.com/questions/44766665/how-do-i-docker-copy-as-non-root
+# Use COPY --chown? Not doing it yet because
+USER root
+RUN time find ${EVERGREEN_HOME} \! -user jenkins -print0 | xargs -0 chown $user:$group
+USER $user
 VOLUME ${EVERGREEN_HOME}

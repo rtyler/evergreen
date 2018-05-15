@@ -31,6 +31,33 @@ test_smoke() {
 
 }
 
+# FIXME JENKINS-51328 to re-enable
+test_no_node_error_in_logs() {
+
+    startSkipping
+
+    result=$( docker logs "$container_under_test" |
+                grep -e '^error:' )
+    assertNotEquals "Node errors were found in the instance, check logs: $result" 0 $?
+
+    endSkipping
+}
+
+# JENKINS-49864
+test_docker_CLI_available() {
+  docker exec "$container_under_test" which docker > /dev/null
+  assertEquals "docker found in the PATH" 0 $?
+
+  # Check that not only something called docker can be found on the PATH
+  # but is actually looking more like it using a specific command call
+  output=$( docker exec "$container_under_test" docker version 2>&1 )
+  assertEquals "error is expected since no Docker daemon $?" 1 $?
+
+  echo "$output" | \
+      grep "Cannot connect to the Docker daemon" > /dev/null
+  assertEquals "expected message about daemon unavailable" 0 $?
+}
+
 # JENKINS-49861
 test_no_executor() {
   numExecutors=$( docker exec "$container_under_test" cat "$JENKINS_HOME/config.xml" | \
@@ -119,6 +146,12 @@ test_logs_are_propagated() {
   # Depends on https://github.com/jenkinsci/essentials-plugin/blob/0d7ee52820db08f5790d79c189a88e2237cfe902/src/main/java/io/jenkins/plugins/essentials/logging/EssentialsLoggingConfigurer.java#L34 being the first
   echo "$result" | grep EssentialsLoggingConfigurer > /dev/null
   assertEquals "$result should contain the log from the Essentials Jenkins plugin" "0" "$?"
+}
+
+# Test everything under /evergreen is owned by the jenkins user
+test_evergreen_home_is_fully_owned_by_jenkins_user() {
+  result=$( docker exec "$container_under_test" find . \! -user jenkins -print )
+  assertEquals "Some files are not owned by 'jenkins', should not happen!" "" "$result"
 }
 
 . ./shunit2/shunit2
