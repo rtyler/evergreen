@@ -50,7 +50,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'build/tests-logs*/**.log*'
+                    archiveArtifacts artifacts: 'build/tests-run*/**.log*'
                 }
             }
         }
