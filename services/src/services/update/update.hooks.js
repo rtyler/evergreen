@@ -126,6 +126,13 @@ class UpdateHooks {
             }
           },
           {
+            'url' : 'https://updates.jenkins.io/latest/essentials.hpi',
+            'checksum' : {
+              'type' : 'sha256',
+              'signature' : '94a367b3810cb3175c78490616d0d5f7fb4f7f710c24583901da5159f3d93e0c'
+            }
+          },
+          {
             'url' : 'https://updates.jenkins.io/latest/credentials.hpi',
             'checksum' : {
               'type' : 'sha256',
