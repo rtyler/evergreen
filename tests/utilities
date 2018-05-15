@@ -16,17 +16,19 @@ info() {
 cleanup () {
   echo
 
-  theDate=$( date +%Y-%m-%d_%H_%M_%S )
-  logsDirectory=build/tests-logs-$theDate
-  mkdir -p $logsDirectory
-  echo -n "Retrieving container logs before shutdown... Logs will be in the $logsDirectory directory"
+  theDate=$( date +%Y-%m-%d_%H-%M-%S )
+  testRunDirectory=build/tests-run-$theDate
+  mkdir -p $testRunDirectory
+
+  echo -n "Retrieving test run data (container logs, ...) before shutdown... Will be in the $testRunDirectory directory... "
   # Normally should be something like evergreen_backend_1, evergreen_db_1 and evergreen_instance_1
   containers=$( $COMPOSE ps | head -5 | tail -3 | awk '{print $1}' )
 
   for container in $containers
   do
-    docker logs $container > $logsDirectory/${container}.log 2>&1
+    docker logs $container > $testRunDirectory/${container}.log 2>&1
   done
+  docker cp "$container_under_test":/evergreen/jenkins/var/logs/essentials.log.0 $testRunDirectory/essentials.log.0
   echo "Done getting logs for $containers"
 
   echo -n "Cleaning up... "
