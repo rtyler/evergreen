@@ -29,11 +29,5 @@ describe('The periodic module', () => {
       assert.ok(offset <= 59);
       assert.ok(offset >= 0);
     });
-
-    it('should return a different number between invocations', () => {
-      let first = p.computeOffset();
-      let second = p.computeOffset();
-      assert.notEqual(first, second);
-    });
   });
 });

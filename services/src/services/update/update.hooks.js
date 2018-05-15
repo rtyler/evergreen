@@ -77,6 +77,13 @@ class UpdateHooks {
       'plugins' : {
         'updates' : [
           {
+            'url' : 'https://updates.jenkins.io/latest/apache-httpcomponents-client-4-api.hpi',
+            'checksum' : {
+              'type' : 'sha256',
+              'signature' : 'c4f964c6deb599816f6740ef674cb6dd2644d5f1b4e7b886a948f778ec5c189e'
+            }
+          },
+          {
             'url' : 'http://updates.jenkins.io/experimental/latest/configuration-as-code.hpi',
             'checksum' : {
               'type' : 'sha256',
@@ -119,6 +126,13 @@ class UpdateHooks {
             }
           },
           {
+            'url' : 'https://updates.jenkins.io/latest/credentials.hpi',
+            'checksum' : {
+              'type' : 'sha256',
+              'signature' : 'c4f964c6deb599816f6740ef674cb6dd2644d5f1b4e7b886a948f778ec5c189e'
+            }
+          },
+          {
             'url' : 'https://updates.jenkins.io/latest/git-client.hpi',
             'checksum' : {
               'type' : 'sha256',
@@ -154,6 +168,13 @@ class UpdateHooks {
             }
           },
           {
+            'url' : 'https://updates.jenkins.io/latest/jsch.hpi',
+            'checksum' : {
+              'type' : 'sha256',
+              'signature' : 'a05273cd20c11557ffcb7dcb75150f21d35dc8be28355548b831c2960d7f11c0'
+            }
+          },
+          {
             'url' : 'https://updates.jenkins.io/latest/metrics.hpi',
             'checksum' : {
               'type' : 'sha256',
@@ -169,6 +190,13 @@ class UpdateHooks {
           },
           {
             'url' : 'https://updates.jenkins.io/latest/script-security.hpi',
+            'checksum' : {
+              'type' : 'sha256',
+              'signature' : '837a2ed38069d8bc089c5370eaa5858edc519433801949fd6b84d05444f13afe'
+            }
+          },
+          {
+            'url' : 'https://updates.jenkins.io/latest/ssh-credentials.hpi',
             'checksum' : {
               'type' : 'sha256',
               'signature' : '837a2ed38069d8bc089c5370eaa5858edc519433801949fd6b84d05444f13afe'

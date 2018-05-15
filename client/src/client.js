@@ -2,7 +2,8 @@
  * This is the main entrypoint for the evergreen-client
  */
 
-const path = require('path');
+const path    = require('path');
+const process = require('process');
 
 const feathers = require('@feathersjs/feathers');
 const fetch    = require('node-fetch');
@@ -122,6 +123,9 @@ class Client {
       else {
         return this.runloop(this.app);
       }
+    }).catch((err) => {
+      logger.info('Fatal error encountered while trying to register, exiting the client and will restart and retry', err);
+      process.exit(1);
     });
   }
 

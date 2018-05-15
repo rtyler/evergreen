@@ -51,7 +51,7 @@ class Registration {
     return new Promise((resolve, reject) => {
       let api = self.app.service('registration');
       logger.info('Checking registration status..');
-      if (self.hasKeys()) {
+      if (self.hasKeys() && self.hasUUID()) {
         logger.info('We have keys and a UUID already');
         self.loadKeysSync();
         self.loadUUIDSync();
@@ -157,6 +157,27 @@ class Registration {
     let config = JSON.parse(fs.readFileSync(this.uuidPath(), this.fileOptions));
     this.uuid = config.uuid;
     return (!!this.uuid);
+  }
+
+  /*
+   * Determine whether the uuid.json is already present. Indicating a
+   * successful registration has happened at some point in the past.
+   *
+   * @return Boolean
+   */
+  hasUUID() {
+    try {
+      fs.statSync(this.uuidPath());
+      return true;
+    }
+    catch (err) {
+      if (err.code == 'ENOENT') {
+        return false;
+      }
+      else {
+        throw err;
+      }
+    }
   }
 
   /*
