@@ -16,7 +16,7 @@ info() {
 cleanup () {
   echo
 
-  theDate=$( date +%Y-%m-%d_%H:%M:%S )
+  theDate=$( date +%Y-%m-%d_%H_%M_%S )
   logsDirectory=build/tests-logs-$theDate
   mkdir -p $logsDirectory
   echo -n "Retrieving container logs before shutdown... Logs will be in the $logsDirectory directory"
