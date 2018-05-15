@@ -124,7 +124,7 @@ class Client {
         return this.runloop(this.app);
       }
     }).catch((err) => {
-      logger.debug('Fatal error encountered while trying to register, exiting the client and will restart and retry', err);
+      logger.info('Fatal error encountered while trying to register, exiting the client and will restart and retry', err);
       process.exit(1);
     });
   }
