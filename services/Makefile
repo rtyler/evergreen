@@ -2,6 +2,7 @@ NODE:=../tools/node
 COMPOSE:=../tools/compose
 IMAGE_NAME:=jenkinsciinfra/evergreen-backend
 DB_DUMP=initdb.d/db.sql
+USER_ID:=$(shell id -u)
 
 all: check docs container
 
@@ -16,22 +17,23 @@ lint: depends
 fix-formatting:
 	$(NODE) npm run eslint -- --fix
 
-unit:
-	$(COMPOSE) run -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node npm run jest
+unit: depends
+	echo ${USER_ID}
+	$(COMPOSE) run --user=${USER_ID} -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node npm run jest
 
 debug-unit:
-	$(COMPOSE) run -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm -p 9229:9229 node \
+	$(COMPOSE) run --user=${USER_ID} -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm -p 9229:9229 node \
 		node --inspect-brk=0.0.0.0:9229 node_modules/.bin/jest --runInBand --bail --forceExit test/
 
 acceptance:
-	$(COMPOSE) run -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node npm run acceptance
+	$(COMPOSE) run --user=${USER_ID} -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node npm run acceptance
 
 debug-acceptance:
-	$(COMPOSE) run -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm -p 9229:9229 node \
+	$(COMPOSE) run --user=${USER_ID} -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm -p 9229:9229 node \
 		node --inspect-brk=0.0.0.0:9229 node_modules/.bin/jest --runInBand --bail --forceExit acceptance/
 
 watch:
-	$(COMPOSE) run -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node jest --bail --watchAll
+	$(COMPOSE) run --user=${USER_ID} -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node jest --bail --watchAll
 
 depends: package.json
 	# Checking to see if the directory exists because npm install updates the
@@ -58,7 +60,7 @@ run: migrate
 	$(COMPOSE) up node
 
 debug-run:
-	$(COMPOSE) run -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json \
+	$(COMPOSE) run --user=${USER_ID} -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json \
 		--rm -p 9229:9229 -p 3030:3030 node \
 		node --inspect-brk=0.0.0.0:9229 src/
 
