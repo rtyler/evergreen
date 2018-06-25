@@ -20,7 +20,7 @@
     {
       "groupId": "io.jenkins.plugins",
       "artifactId": "essentials",
-      "url": "http://repo.jenkins-ci.org/incrementals/io/jenkins/plugins/essentials/0.3-rc20.a3f76cdd1348/essentials-0.3-rc20.a3f76cdd1348.hpi",
+      "url": "http://repo.jenkins-ci.org/incrementals/io/jenkins/plugins/essentials/0.3-rc21.0447e4e278eb/essentials-0.3-rc21.0447e4e278eb.hpi",
       "checksum": {
         "type": "sha512",
         "signature": "e1cdf271eabed428c2198c4f7a49c5dea7fc8850987bcf63b87b74936a3cc426896a4b7c9c974f0fe3abd61071ea5a2238538af9f9266f2d37696856809d697a"
