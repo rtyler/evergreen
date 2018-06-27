@@ -2,8 +2,10 @@ jest.mock('fs');
 
 const assert         = require('assert');
 const fs             = require('fs');
-const ErrorTelemetry = require('../src/lib/error-telemetry');
+const path           = require('path');
 const mkdirp         = require('mkdirp');
+
+const ErrorTelemetry = require('../src/lib/error-telemetry');
 
 describe('Error Telemetry Logging', () => {
   beforeEach(() => {
@@ -12,7 +14,6 @@ describe('Error Telemetry Logging', () => {
   });
 
   describe('authenticate()', () => {
-
     it('should store values', () => {
       const telemetry = new ErrorTelemetry().authenticate('you-you-i-Dee', 'toe-ken-that-guy');
       assert.equal(telemetry.uuid, 'you-you-i-Dee');
@@ -20,37 +21,37 @@ describe('Error Telemetry Logging', () => {
   });
 
   describe('setup() call', () => {
+    const errorTelemetryService = new ErrorTelemetry();
+
+    let logsDir = '/evergreen/jenkins/war/logs';
+    let logFile = path.join(logsDir, 'essentials.log.0');
+
+    beforeEach(() => {
+      // Set up the directories needed
+      mkdirp.sync(logsDir);
+      // Seed our log file with one message to start
+      fs.writeFileSync(logFile, '{"timestamp":1523451065975,"level":"SEVERE","message":"WAT"}\n');
+    });
 
     // FIXME: only hackish, the end goal is definitely not to forward to another file
     it('writing to essentials logging file should forward to another', done => {
+      const forwardedLines = [];
 
-      // Given: the file is watched
-      // Write before setup to make sure the file is already present
-      const logsDir = '/evergreen/jenkins/var/logs/';
-      const logFile = logsDir + 'essentials.log.0';
-      mkdirp.sync(logsDir);
-      fs.writeFileSync(logFile, '{"timestamp":1523451065975,"level":"SEVERE","message":"WAT"}\n');
-      assert(fs.existsSync(logFile));
-
-      mkdirp.sync('/tmp');
-      const errorTelemetryService = new ErrorTelemetry();
       errorTelemetryService.callErrorTelemetryService = (app,jsonObject) => {
-        fs.appendFileSync('/tmp/test', `MESSAGE=${jsonObject.message}\n`);
+        forwardedLines.push(jsonObject.message);
       };
 
       const response = errorTelemetryService.setup(logFile);
-      assert(!(response instanceof Promise));
-
-      assert(!fs.existsSync('/tmp/test'));
+      expect(response).not.toBe(Promise);
+      expect(forwardedLines.length).toEqual(0);
 
       // when: we write to the file
       fs.appendFileSync(logFile, '{"timestamp":1523451065975,"level":"SEVERE","message":"WAT2"}\n');
 
       // then: the output function is called, and the mocked file contains what we expect
       setTimeout( () => {
-        assert(fs.existsSync('/tmp/test'));
-        const actual = fs.readFileSync('/tmp/test','utf8');
-        assert.equal(actual, 'MESSAGE=WAT\nMESSAGE=WAT2\n');
+        expect(forwardedLines.length).toEqual(2);
+        expect(forwardedLines[1]).toEqual('WAT2');
         done();
       }, 2000);
     });

@@ -26,24 +26,20 @@ class ErrorTelemetry {
   * has a modification detected.
   */
   callErrorTelemetryService(app, logDataObject) {
-
     const api = app.service('telemetry/error');
 
     const payload = {
       log: logDataObject,
       uuid: this.uuid
     };
-    return api.create(
-      payload
-      ,
+
+    return api.create(payload,
       {
         headers: { Authorization: this.token }
       }
-    ).then((res) => {
-      logger.info('pushed as ', res);
-    }).catch((res) => {
-      logger.error('Failed to push log:', res);
-    });
+    )
+      .then(res => logger.debug('Pushed error as', res))
+      .catch(err => logger.error('Failed to push log', err));
   }
 
   /**
@@ -52,13 +48,7 @@ class ErrorTelemetry {
   */
   setup(monitoredFile) {
     logger.info('Setting up error logging...');
-
-    let loggingFile = '';
-    if (monitoredFile) {
-      loggingFile = monitoredFile;
-    } else {
-      loggingFile = this.fileToWatch();
-    }
+    let loggingFile = monitoredFile || this.fileToWatch();
 
     if (!fs.existsSync(loggingFile)) {
       logger.warn(`Logging file ${loggingFile} not found. Still watching the path in case the file gets created later. Can be normal when starting up.`);
@@ -89,14 +79,11 @@ class ErrorTelemetry {
   }
 
   fileToWatch() {
-    let path = '';
     if (!process.env.ESSENTIALS_LOG_FILE) {
       logger.debug('Defaulting to essentials.log.0');
-      path = '/evergreen/jenkins/var/logs/essentials.log.0';
-    } else {
-      path = process.env.ESSENTIALS_LOG_FILE;
+      return '/evergreen/jenkins/var/logs/essentials.log.0';
     }
-    return path;
+    return process.env.ESSENTIALS_LOG_FILE;
   }
 }
 
