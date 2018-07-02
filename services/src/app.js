@@ -7,6 +7,7 @@ const compress       = require('compression');
 const cors           = require('cors');
 const helmet         = require('helmet');
 const logger         = require('winston');
+const Raven          = require('raven');
 
 const feathers       = require('@feathersjs/feathers');
 const configuration  = require('@feathersjs/configuration');
@@ -30,6 +31,9 @@ const app = express(feathers());
 
 // const SUCCESS = 'OK';
 const FAILURE = 'ERROR';
+
+// Sentry setup
+Raven.config(process.env.SENTRY_URL).install();
 
 // Load app configuration
 app.configure(settings);

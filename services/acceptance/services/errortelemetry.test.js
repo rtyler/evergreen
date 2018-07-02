@@ -111,7 +111,32 @@ describe('Error Telemetry service acceptance tests', () => {
             timestamp: 1522840762769,
             name: 'io.jenkins.plugins.SomeTypicalClass',
             level: 'WARNING',
-            message: 'the message\nand another line',
+            message: 'the message 1\nand another line',
+          }
+        };
+        return request({
+          url: h.getUrl('/telemetry/error'),
+          method: 'POST',
+          headers: { 'Authorization': this.token },
+          json: true,
+          body: emptyLog
+        })
+          .then(res => {
+            assert.ok(res);
+            assert.equal(res.status, 'OK', 'response.status should be OK but got: ' + res.status);
+          })
+          .catch(err => assert.fail(err));
+      });
+
+      it('should accept correctly formatted logs with exception', () => {
+        let emptyLog = {
+          uuid: this.reg.uuid,
+          log: {
+            version: 1,
+            timestamp: 1522840762769,
+            name: 'io.jenkins.plugins.SomeTypicalClass',
+            level: 'WARNING',
+            message: 'the message 2\nand another line',
             exception: {
               raw: 'serialized exception\n many \n many \n lines'
             }

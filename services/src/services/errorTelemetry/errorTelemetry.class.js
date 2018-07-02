@@ -2,6 +2,7 @@ const fs     = require('fs');
 const logger = require('winston');
 const path   = require('path');
 const mkdirp = require('mkdirp');
+const Raven  = require('raven');
 
 
 const DEFAULT_ERROR_LOGGING_FILE = '/srv/evergreen/error-logging.json';
@@ -30,6 +31,25 @@ class ErrorTelemetryService {
     // FIXME: TBD where, what and how to actually send data
     const toWrite = `${new Date()} => ${JSON.stringify(data)}\n\n`;
     fs.appendFileSync(this.loggingFile, toWrite);
+    if (data.log.exception.raw) {
+      Raven.captureException(new Error(data.log.message), {
+        level: data.log.level.toLowerCase(),
+        logger: data.log.name,
+        extra: {
+          uuid: data.uuid,
+          source: data.log
+        }
+      });
+    } else {
+      Raven.captureMessage(data.log.message, {
+        level: data.log.level.toLowerCase(),
+        logger: data.log.name,
+        extra: {
+          uuid: data.uuid,
+          source: data.log
+        }
+      });
+    }
 
     return Promise.resolve({status:'OK'});
   }

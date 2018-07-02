@@ -26,7 +26,7 @@ debug-unit:
 		node --inspect-brk=0.0.0.0:9229 node_modules/.bin/jest --runInBand --bail --forceExit test/
 
 acceptance:
-	$(COMPOSE) run -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node npm run acceptance
+	$(COMPOSE) run -e NODE_ENV=test -e SENTRY_URL=$(SENTRY_URL) -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm node npm run acceptance
 
 debug-acceptance:
 	$(COMPOSE) run -e NODE_ENV=test -e ERROR_LOGGING_FILE=/srv/evergreen/error-logging.json --rm -p 9229:9229 node \
