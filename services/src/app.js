@@ -7,7 +7,6 @@ const compress       = require('compression');
 const cors           = require('cors');
 const helmet         = require('helmet');
 const logger         = require('winston');
-const Raven          = require('raven');
 
 const feathers       = require('@feathersjs/feathers');
 const configuration  = require('@feathersjs/configuration');
@@ -23,6 +22,8 @@ const appHooks       = require('./app.hooks');
 const channels       = require('./channels');
 const sequelize      = require('./sequelize');
 
+const sentry           = require('./lib/sentry');
+
 const swagger          = require('feathers-swagger');
 const sequelizeSwagger = require('./sequelize-swagger');
 
@@ -32,8 +33,7 @@ const app = express(feathers());
 // const SUCCESS = 'OK';
 const FAILURE = 'ERROR';
 
-// Sentry setup
-Raven.config(process.env.SENTRY_URL).install();
+sentry.initialize(process.env.SENTRY_URL);
 
 // Load app configuration
 app.configure(settings);
