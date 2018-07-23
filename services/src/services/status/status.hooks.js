@@ -3,15 +3,31 @@
  */
 
 const authentication     = require('@feathersjs/authentication');
+const errors             = require('@feathersjs/errors');
 const dbtimestamp        = require('../../hooks/dbtimestamp');
 const internalOnly       = require('../../hooks/internalonly');
 const ensureMatchingUUID = require('../../hooks/ensureuuid');
+
+const instanceRequiredFields = [
+  'flavor'
+];
 
 /*
  * StatusHooks are all the hooks necessary to run the status service properly
  */
 class StatusHooks {
   constructor () {
+  }
+
+  validateRequiredFields(hook) {
+    if (!(hook.data)) {
+      throw new errors.BadRequest('Missing data');
+    }
+    instanceRequiredFields.forEach( field => {
+      if (!hook.data[field]) {
+        throw new errors.BadRequest(`Missing required field '${field}'`);
+      }
+    });
   }
 
   getHooks() {
@@ -25,6 +41,7 @@ class StatusHooks {
         ],
         create: [
           ensureMatchingUUID,
+          this.validateRequiredFields,
           dbtimestamp('createdAt'),
           module.exports.defaultUpdateLevel,
           module.exports.pruneQueryParams,
