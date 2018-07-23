@@ -44,11 +44,23 @@ describe('Status service acceptance tests', () => {
             method: 'POST',
             headers: { 'Authorization': this.token },
             json: true,
-            body: { uuid: this.uuid }
+            body: { uuid: this.uuid, flavor: 'aws-ec2-cloud' }
           });
 
           expect(response).toBeTruthy();
           expect(response.updateId).toBeTruthy();
+        });
+
+        it('should not allow creating a status for missing flavor', async () => {
+          return request({
+            url: h.getUrl('/status'),
+            method: 'POST',
+            headers: { 'Authorization': this.token },
+            json: true,
+            body: { uuid: this.uuid }
+          })
+            .then(res => assert.fail(res))
+            .catch(err => expect(err.statusCode).toEqual(400));
         });
 
         it('should not allow creating a status for a uuid not in the JWT', () => {

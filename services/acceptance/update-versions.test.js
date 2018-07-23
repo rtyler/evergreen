@@ -27,7 +27,7 @@ describe('versions/updates interaction acceptance tests', () => {
       method: 'POST',
       headers: { 'Authorization': this.token },
       json: true,
-      body: { uuid: this.uuid }
+      body: { uuid: this.uuid, flavor: 'docker-cloud' }
     });
 
     /*
