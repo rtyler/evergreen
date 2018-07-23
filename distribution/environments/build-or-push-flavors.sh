@@ -7,7 +7,7 @@ if [[ "$1" == "build" ]]; then
   for dir in *-cloud
   do
     echo "Building $dir directory"
-    docker build -t "$IMAGE_NAME:$dir" "$dir"
+    docker build --build-arg FLAVOR=$dir -t "$IMAGE_NAME:$dir" "$dir"
   done
 elif [[ "$1" == "push" ]]; then
   for dir in *-cloud

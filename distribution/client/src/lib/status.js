@@ -32,6 +32,7 @@ class Status {
     let api = this.app.service('status');
     let record = {
       uuid: this.uuid,
+      flavor: '',
       timezone: this.getTimezone(),
     };
     return api.create(record, {
