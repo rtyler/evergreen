@@ -1,8 +1,25 @@
 const assert   = require('assert');
 const feathers = require('@feathersjs/feathers');
+const errors   = require('@feathersjs/errors');
 const hooks    = require('../../src/services/status/status.hooks');
+const validateRequiredFields = require('../../src/services/status/status.hooks').validateRequiredFields;
 
 describe('status service hooks', () => {
+  it('should reject missing fields', () => {
+    const badQueries = [
+      {},
+      {'uuid':'value'}
+    ];
+    for (let i = 0; i < badQueries.length; i++) {
+      try {
+        validateRequiredFields(badQueries[i]);
+        assert.fail('Should have failed above (value=${badQueries[i]})');
+      } catch (err) {
+        assert.ok( err instanceof errors.BadRequest );
+      }
+    }
+  });
+
   describe('get hooks', () => {
     let app;
 
