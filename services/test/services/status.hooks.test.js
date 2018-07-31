@@ -6,29 +6,31 @@ const validateRequiredFields = require('../../src/services/status/status.hooks')
 
 describe('status service hooks', () => {
   it('should pass with required fields', () => {
-    debugger;
-    const goodQuery = {'flavor':'value'};
-    try {
+    const goodQuery = {
+      data: {
+        'flavor':'value',
+      },
+    };
+    expect(() => {
       validateRequiredFields(goodQuery);
-      assert.ok(true);
-    } catch (err) {
-      assert.fail('Got error: ' + errors.BadRequest);
-    }
+    }).not.toThrow(errors.BadRequest);
   });
 
-  it('should reject missing fields', () => {
-    const badQueries = [
-      {},
-      {'uuid':'value'}
-    ];
-    for (let i = 0; i < badQueries.length; i++) {
-      try {
-        validateRequiredFields(badQueries[i]);
-        assert.fail('Should have failed above (value=${badQueries[i]})');
-      } catch (err) {
-        assert.ok( err instanceof errors.BadRequest );
-      }
-    }
+  describe('rejection of missing fields', () => {
+    let context = { data: {} };
+
+    it('should reject an empty data payload', () => {
+      expect(() => {
+        validateRequiredFields(context);
+      }).toThrow(errors.BadRequest);
+    });
+
+    it('should reject a missing flavor', () => {
+      context.data = { 'uuid' : 'value' };
+      expect(() => {
+        validateRequiredFields(context);
+      }).toThrow(errors.BadRequest);
+    });
   });
 
   describe('get hooks', () => {
