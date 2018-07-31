@@ -5,6 +5,17 @@ const hooks    = require('../../src/services/status/status.hooks');
 const validateRequiredFields = require('../../src/services/status/status.hooks').validateRequiredFields;
 
 describe('status service hooks', () => {
+  it('should pass with required fields', () => {
+    debugger;
+    const goodQuery = {'flavor':'value'};
+    try {
+      validateRequiredFields(goodQuery);
+      assert.ok(true);
+    } catch (err) {
+      assert.fail('Got error: ' + errors.BadRequest);
+    }
+  });
+
   it('should reject missing fields', () => {
     const badQueries = [
       {},

@@ -29,13 +29,13 @@ unit: depends
 	NODE_ENV=test npm run jest
 
 debug-unit:
-	NODE_ENV=test node --inspect-brk=9229 jest -i -b --forceExit test/
+	NODE_ENV=test node --inspect-brk=0.0.0.0:9229 jest -i -b --forceExit test/
 
 acceptance:
 	NODE_ENV=test npm run acceptance
 
 debug-acceptance:
-	NODE_ENV=test node --inspect-brk=9229 jest -i -b --forceExit acceptance/
+	NODE_ENV=test node --inspect-brk=0.0.0.0:9229 jest -i -b --forceExit acceptance/
 
 watch:
 	NODE_ENV=test jest --bail --watchAll test/
