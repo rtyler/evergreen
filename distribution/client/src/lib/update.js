@@ -64,7 +64,10 @@ class Update {
     let tasks = [];
 
     if ((updates.core) && (updates.core.url)) {
-      tasks.push(Downloader.download(updates.core.url, Storage.jenkinsHome(), 'jenkins.war'));
+      tasks.push(Downloader.download(updates.core.url,
+          Storage.jenkinsHome(),
+          'jenkins.war',
+          updates.core.checksum.signature));
     }
 
     if ((!updates.plugins) || (!updates.plugins.updates)) {
@@ -79,7 +82,8 @@ class Update {
       logger.info('Downloading', plugin);
       tasks.push(Downloader.download(plugin.url,
         Storage.pluginsDirectory(),
-        `${plugin.artifactId}.hpi`));
+        `${plugin.artifactId}.hpi`,
+        plugin.checksum.signature));
     });
 
     return Promise.all(tasks).then(() => {
