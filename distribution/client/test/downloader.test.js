@@ -1,9 +1,9 @@
 jest.mock('fs');
 
-const Downloader = require('../src/lib/downloader');
-const mkdirp     = require('mkdirp');
 const fs         = require('fs');
-const checksum   = require('checksum');
+const mkdirp     = require('mkdirp');
+const Downloader = require('../src/lib/downloader');
+const Checksum   = require('../src/lib/checksum');
 
 describe('the Downloader class', () => {
   describe('download()', () => {
@@ -11,6 +11,8 @@ describe('the Downloader class', () => {
     let dir  = '/tmp';
 
     beforeEach(() => {
+      /* Make sure memfs is flushed every time */
+      fs.volume.reset();
       mkdirp.sync(dir);
     });
 
@@ -34,12 +36,11 @@ describe('the Downloader class', () => {
       // ace-editor is 5 MB, so it could make tests more flaky and cumbersome with slow connection
       // FIXME: introduce assume() + env var to allow disabling this?
       const toDownload = 'http://updates.jenkins-ci.org/download/plugins/ace-editor/1.1/ace-editor.hpi';
-      const expectedSha1 = '39ed0947dcd9b414769ae28b3eb955643e25d5e0';
+      const sha256 = 'abc97028893c8a71581a5f559ea48e8e1f1a65164faee96dabfed9e95e9abad2';
 
       jest.setTimeout(50000); // default is 5 seconds, could be bigger because of the file size
       await Downloader.download(toDownload, dir, 'ace-editor.hpi');
-
-      expect(checksum(fs.readFileSync(`${dir}/ace-editor.hpi`))).toBe(expectedSha1);
+      expect(Checksum.signatureFromFile(`${dir}/ace-editor.hpi`)).toEqual(sha256);
     });
   });
 });
