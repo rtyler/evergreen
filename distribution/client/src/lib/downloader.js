@@ -11,7 +11,8 @@ const rp      = require('promise-request-retry');
 const logger  = require('winston');
 const mkdirp  = require('mkdirp');
 
-const UI = require('./ui');
+const Checksum = require('./checksum');
+const UI       = require('./ui');
 
 class Downloader {
   constructor() {

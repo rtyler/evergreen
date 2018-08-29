@@ -1,11 +1,11 @@
 'use strict';
 
-const crypto = require('crypto');
 const fs     = require('fs');
 const path   = require('path');
 
-const logger  = require('winston');
-const Storage = require('./storage');
+const logger   = require('winston');
+const Storage  = require('./storage');
+const Checksum = require('./checksum');
 
 
 /*
@@ -108,7 +108,7 @@ class Status {
 
     Object.assign(versions.container.tools, process.versions);
 
-    versions.jenkins.core = Status.signatureFromFile(path.join(Storage.jenkinsHome(), 'jenkins.war'));
+    versions.jenkins.core = Checksum.signatureFromFile(path.join(Storage.jenkinsHome(), 'jenkins.war'));
 
     try {
       const files = fs.readdirSync(Storage.pluginsDirectory());
@@ -117,7 +117,7 @@ class Status {
         if (matched) {
           const name = matched[1];
           const fullPath = path.join(Storage.pluginsDirectory(), file);
-          versions.jenkins.plugins[name] = Status.signatureFromFile(fullPath);
+          versions.jenkins.plugins[name] = Checksum.signatureFromFile(fullPath);
         }
       });
     } catch (err) {
@@ -131,26 +131,6 @@ class Status {
     return versions;
   }
 
-  /*
-   * Generate a SHA-256 checksum signature from the provided relative or
-   * absolute file path
-   *
-   * @param {string} Properly formed path to file
-   * @return {string} hex-encoded sha256 signature
-   */
-  static signatureFromFile(filePath) {
-    try {
-      return crypto.createHash('sha256')
-        .update(fs.readFileSync(filePath))
-        .digest('hex');
-    } catch (err) {
-      if (err.code == 'ENOENT') {
-        logger.error('The file path does not exist and cannot provide a signature', filePath);
-        return null;
-      }
-      throw err;
-    }
-  }
 }
 
 module.exports = Status;

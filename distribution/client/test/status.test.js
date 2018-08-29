@@ -85,20 +85,4 @@ describe('The status module', () => {
       });
     });
   });
-
-  describe('signatureFromFile', () => {
-    const validFile = '/jest-test';
-
-    beforeEach(() => {
-      fs.writeFileSync(validFile, 'hello world');
-    });
-
-    it('should return a string', () => {
-      expect(Status.signatureFromFile(validFile)).toBeTruthy();
-    });
-
-    it('should return null for a non-existent file', () => {
-      expect(Status.signatureFromFile('/tmp/no-way-this-file.ever.exists/i-hope')).toBeFalsy();
-    });
-  });
 });
