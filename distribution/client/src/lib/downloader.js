@@ -33,15 +33,18 @@ class Downloader {
    * @param {string} the full URL
    * @param {string} a full output directory
    * @param {string} the filename to output at
+   * @parma {string} Optional sha256 signature to verify of the file
    */
-  static download(item, dir, fileNameToWrite) {
+  static download(item, dir, fileNameToWrite, sha256) {
     const itemUrl = url.parse(item);
     const itemUrlBaseName = path.basename(itemUrl.pathname);
+
     if (!itemUrlBaseName) {
       throw new Error(`The URL must end with a non-empty path. E.g. http://jenkins.io/something.html instead of https://jenkins.io/ (received URL=${itemUrl})`);
     }
 
     mkdirp.sync(dir);
+
     const filename = [dir, fileNameToWrite].join(path.sep);
 
     UI.publish(`Fetching ${filename}`);
@@ -62,10 +65,10 @@ class Downloader {
     };
 
     const startTime = Date.now();
-    return new Promise( (resolve, reject) => {
-      rp(options)
-        .then( (response) => {
 
+    return new Promise((resolve, reject) => {
+      rp(options)
+        .then((response) => {
           const elapsedString = Downloader.formatDuration(Date.now() - startTime);
           logger.info  ('Download complete for', filename, `(Took ${elapsedString})`);
           UI.publish(`Fetched ${filename} in ${elapsedString}s`);
@@ -73,16 +76,26 @@ class Downloader {
           const output = fs.createWriteStream(filename);
 
           output.on('close', () => {
-            logger.debug('Downloaded %s (%d bytes)',
-              filename, output.bytesWritten);
-            resolve(output);
+            logger.debug('Downloaded %s (%d bytes)', filename, output.bytesWritten);
+            if (sha256) {
+              logger.error('Verifying signature for', filename);
+              const downloaded = Checksum.signatureFromFile(filename);
+
+              if (sha256 != downloaded) {
+                // Our messages are displayed in reverse order in the UI :)
+                UI.publish('Jenkins may fail to start properly! Please check your network connection');
+                UI.publish(`Signature verification failed for ${filename}! (${downloaded} != ${sha256})`, { log: 'error' });
+                return reject(new Error(`Signature verification failed for ${filename}`));
+              }
+            }
+            return resolve(output);
           });
           output.write(response.body);
           output.end();
         })
         .catch((err) => {
           logger.error('Error %s occurred while fetching %s and saving to %s', err, item, filename);
-          reject(err);
+          return reject(err);
         });
     });
   }
