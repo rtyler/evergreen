@@ -59,8 +59,12 @@ publish: container
 create-squid-cache-volume:
 	docker volume create ${SQUID_VOLUME_NAME}
 
-run: create-squid-cache-volume
-	$(COMPOSE) -f docker-compose.yml -f docker-compose.squid-cache.yml up
+run: create-squid-cache-volume container-check-prereqs
+	$(COMPOSE) -f docker-compose.yml \
+             -f docker-compose.squid-cache.yml \
+             -f tests/environments/docker-cloud/docker-compose.docker-cloud.yml \
+             up
+
 
 clean:
 	$(COMPOSE) down || true

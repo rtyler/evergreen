@@ -27,7 +27,7 @@ cleanup () {
 
   echo -n "Retrieving test run data (container logs, ...) before shutdown... Will be in the $testRunDirectory directory... "
   # Normally should be something like evergreen_backend_1, evergreen_db_1 and evergreen_instance_1
-  containers=$( $COMPOSE ps | head -5 | tail -3 | awk '{print $1}' )
+  containers=$( $COMPOSE ps | head -5 | tail -4 | awk '{print $1}' )
 
   for container in $containers
   do
