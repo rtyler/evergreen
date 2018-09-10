@@ -1,8 +1,8 @@
-# This is a simple comment which will be removed.
 metadata:
   labels:
     name: jenkins-evergreen
-  annotations: null
+  annotations:
+    example: 'this is just here for a test'
 spec:
   core:
     version: 2.141-rc27251.3d1bbb807af9
