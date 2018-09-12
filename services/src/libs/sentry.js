@@ -36,10 +36,9 @@ class Sentry {
       level: data.log.level.toLowerCase(),
       logger: data.log.name,
       user: {
-        uuid: data.uuid,
+        id: data.uuid,
       },
       extra: {
-        id: data.uuid,
         uuid: data.uuid,
         source: data.log,
         flavor: data.flavor,
