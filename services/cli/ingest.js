@@ -30,8 +30,30 @@ class Ingest {
   resolveReferences() {
     let tasks = [];
 
-    const coreUrl = UrlResolver.artifactForCore(this.manifest.data.status.core);
+    this.ingest.evergreen = {
+      environments: {
+      },
+    };
 
+    this.manifest.data.spec.evergreen.environments.forEach((e) => {
+      const zipUrl = UrlResolver.evergreenRelease(e.name, e.version);
+      const record = {
+        url: zipUrl,
+        checksum: {},
+      };
+      this.ingest.evergreen.environments[e.name] = record;
+      tasks.push(
+        request(`${zipUrl}.sha256`)
+          .then((res) => {
+            Object.assign(this.ingest.evergreen.environments[e.name].checksum, {
+              type: 'sha256',
+              signature: res.split(' ')[0]
+            });
+          })
+      );
+    });
+
+    const coreUrl = UrlResolver.artifactForCore(this.manifest.data.status.core);
     this.ingest.core = {
       url: coreUrl,
       checksum: {},

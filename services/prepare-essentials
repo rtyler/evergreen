@@ -41,6 +41,7 @@ yargs.command('save',
      */
     const uc = UpdateCenter.fromFile('./update-center.json')
     let bomStatus = {
+      evergreen: Object.assign({}, manifest.getEvergreen()),
       core: {},
       plugins: [],
       environments: [],

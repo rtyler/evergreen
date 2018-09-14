@@ -5,6 +5,7 @@ const path = require('path');
 const INCREMENTALS = 'https://repo.jenkins-ci.org/incrementals/';
 const RELEASES     = 'https://repo.jenkins-ci.org/releases/';
 const WAR_MIRROR   = 'http://mirrors.jenkins.io/war/';
+const EVERGREEN    = 'https://github.com/jenkins-infra/evergreen/releases/download/';
 
 
 /*
@@ -12,6 +13,18 @@ const WAR_MIRROR   = 'http://mirrors.jenkins.io/war/';
  * a plugin
  */
 class UrlResolver {
+
+  /*
+   * Compute the URL for GitHub based releases of the evergreen support
+   * distributions
+   * @param {string} flavor/environment
+   * @param {version} version
+   * @retuen {string} URL to the zip file
+   */
+  static evergreenRelease(flavor, version) {
+    return `${EVERGREEN}/${version}/evergreen-${flavor}.zip`;
+  }
+
   /*
    * Compute the mirrored or Artifactory URL for the given core record
    * @param {object} corerecord from essentials.yaml

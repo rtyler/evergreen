@@ -3,6 +3,12 @@ metadata:
     name: jenkins-evergreen
   annotations: null
 spec:
+  evergreen:
+    environments:
+      - name: docker-cloud
+        version: v0.1.0
+      - name: aws-ec2-cloud
+        version: v0.1.0
   core:
     version: 2.142-rc27262.2652a1b1eb90
   plugins:
@@ -102,6 +108,12 @@ spec:
           artifactId: node-iterator-api
           version: 1.5.0
 status:
+  evergreen:
+    environments:
+      - name: docker-cloud
+        version: v0.1.0
+      - name: aws-ec2-cloud
+        version: v0.1.0
   core:
     version: 2.142-rc27262.2652a1b1eb90
   plugins:

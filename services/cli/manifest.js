@@ -31,7 +31,9 @@ class Manifest {
   }
 
   saveSync() {
-    return fs.writeFileSync(this.fileName, yaml.safeDump(this.data));
+    return fs.writeFileSync(this.fileName, yaml.safeDump(this.data, {
+      noRefs: true,
+    }));
   }
 
   getPlugins() {
@@ -40,6 +42,10 @@ class Manifest {
 
   getCore() {
     return this.data.spec.core;
+  }
+
+  getEvergreen() {
+    return this.data.spec.evergreen;
   }
 
   setStatus(status) {
