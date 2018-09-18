@@ -48,7 +48,7 @@ docker run --name evergreen \
     -ti \
     -p 8080:80 \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v jenkins-evergreen-data:/evergreen/ \
+    -v jenkins-evergreen-data:/evergreen/data/ \
     -e LOG_LEVEL=debug \
     jenkins/evergreen:docker-cloud
 ----
@@ -60,7 +60,7 @@ dynamically generated administrator password in order to log in.
 
 [source,bash]
 ----
-docker exec evergreen cat /evergreen/jenkins/home/secrets/initialAdminPassword
+docker exec evergreen cat /evergreen/data/jenkins/home/secrets/initialAdminPassword
 ----
 
 
