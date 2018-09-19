@@ -15,7 +15,7 @@ jenkins:
   #CSRF issuer
   crumbIssuer:
     standard:
-      excludeClientIPFromCrumb: false
+      excludeClientIPFromCrumb: true
 security:
   remotingCLI:
     enabled: false

@@ -56,7 +56,7 @@
               "sudo service docker start\n",
               "sudo usermod -a -G docker ec2-user # not strictly necessary\n",
               "# Now the Evergreen specific part\n",
-              "export DOCKER_IMAGE=jenkins/evergreen:aws-ec2-cloud\n",
+              "export DOCKER_IMAGE=batmat/evergreen:aws-ec2-cloud\n",
               "echo \"", { "Ref": "PrivateKey"}, "\" > ssh-agents-private-key\n",
               "sudo docker pull $DOCKER_IMAGE\n",
               "sudo docker run -d -p 8080:8080 -p 50000:50000 ",

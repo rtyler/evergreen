@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-IMAGE_NAME=jenkins/evergreen
+IMAGE_NAME=batmat/evergreen
 
 set -xe
 
