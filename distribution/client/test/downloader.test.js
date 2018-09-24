@@ -14,6 +14,9 @@ describe('the Downloader class', () => {
       /* Make sure memfs is flushed every time */
       fs.volume.reset();
       mkdirp.sync(dir);
+
+      // default is 5 seconds, could be bigger because of the various file sizes and network flakiness
+      jest.setTimeout(120000);
     });
 
     it('should return promise', async () => {
@@ -31,11 +34,6 @@ describe('the Downloader class', () => {
     });
 
     describe('with real downloads', () => {
-      // FIXME: introduce assume() + env var to allow disabling this?
-      beforeEach(() => {
-        // default is 5 seconds, could be bigger because of the file size
-        jest.setTimeout(120000);
-      });
 
       it('should fail on an invalid signature', async () => {
         try {
