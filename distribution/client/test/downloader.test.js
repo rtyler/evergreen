@@ -59,10 +59,10 @@ describe('the Downloader class', () => {
         const toDownload = 'http://nonexisting-url-yada.org/thefile';
         const startTime = new Date();
         try {
-          await Downloader.download(toDownload, dir, 'thefile', {retry: 4, factor: 1.1, delay: 200});
+          await Downloader.download(toDownload, dir, 'thefile', null, {delay: 20, retry: 4, factor: 10});
           expect(false).toBeTruthy(); // fail(), should not reach this line.
         } catch (e) {
-          expect(new Date() - startTime).toBeGreaterThan(4 * 200);
+          expect(new Date() - startTime).toBeGreaterThan(0 + 20 + 200 + 2000);
         }
       });
     });
