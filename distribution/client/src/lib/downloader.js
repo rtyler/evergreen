@@ -47,8 +47,12 @@ class Downloader {
 
     const filename = [dir, fileNameToWrite].join(path.sep);
 
+    const retryOption = downloadOptions.retry || 10;
+    const delayOption = downloadOptions.delay || 1000;
+    const factorOption = downloadOptions.factor || 1.2;
+
     UI.publish(`Fetching ${filename}`);
-    logger.info('Fetching %s and saving to %s', item, filename);
+    logger.info(`Fetching ${item} and saving to ${filename} (retry=${retryOption}, delay=${delayOption}ms, factor=${factorOption})`);
 
     let options = {
       uri: item,
@@ -61,9 +65,9 @@ class Downloader {
       resolveWithFullResponse: true,
       encoding: null,
       timeout: 120 * 1000,
-      retry: downloadOptions.retry || 10,
-      delay: downloadOptions.delay || 1000,
-      factor: downloadOptions.factor || 1.2
+      retry: retryOption,
+      delay: delayOption,
+      factor: factorOption
     };
 
     const startTime = Date.now();
