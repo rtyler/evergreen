@@ -48,9 +48,9 @@ describe('the Downloader class', () => {
       });
 
       it('should manage to download a decently big file, retrying if needed', async () => {
-        // ace-editor is 5 MB, so it could make tests more flaky and cumbersome with slow connection
-        const toDownload = 'http://updates.jenkins-ci.org/download/plugins/ace-editor/1.1/ace-editor.hpi';
-        const sha256 = 'abc97028893c8a71581a5f559ea48e8e1f1a65164faee96dabfed9e95e9abad2';
+        // plugin is ~1 MB, so it could make tests more flaky and cumbersome with flaky connection
+        const toDownload = 'http://updates.jenkins-ci.org/download/plugins/blueocean-pipeline-editor/1.5.0/blueocean-pipeline-editor.hpi';
+        const sha256 = 'ccaaae7c899b7b15a5bd60f1e59336ca9adf5d08c01de5d123416e83ea5314db';
         await Downloader.download(toDownload, dir, 'ace-editor.hpi');
         expect(Checksum.signatureFromFile(`${dir}/ace-editor.hpi`)).toEqual(sha256);
       });
