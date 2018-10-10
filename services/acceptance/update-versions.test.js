@@ -7,6 +7,7 @@
 const fs      = require('fs');
 const path    = require('path');
 const request = require('request-promise');
+const logger  = require('winston');
 const h       = require('./helpers');
 
 describe('versions/updates interaction acceptance tests', () => {
@@ -107,16 +108,25 @@ describe('versions/updates interaction acceptance tests', () => {
           const taintedLevel = this.response.meta.level;
           expect(taintedLevel).toEqual(this.update.id);
 
-          return request({
+          const payload = {
             url: h.getUrl(`/update/${this.uuid}`),
             headers: { 'Authorization': this.token },
             qs: {
               level: taintedLevel,
             },
             json: true
-          })
+          };
+          logger.error(`Tainted level is ${taintedLevel}`);
+          return request(payload)
             /* Making the assumption in tests that a legit update is -1 */
-            .then(r => expect(r.meta.level).toEqual(taintedLevel - 1));
+            .then(r => expect(r.meta.level).toEqual(taintedLevel - 1))
+            .then ( () => {
+              // let's check that a subsequent request with the rolled back level does not yield the tainted one
+              payload.qs.level = taintedLevel - 1;
+              return request(payload);
+            }).then ( r => {
+              expect(r.meta.level).toEqual(taintedLevel - 1);
+            });
         });
       });
 
