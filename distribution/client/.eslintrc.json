@@ -5,9 +5,15 @@
     "jest": true
   },
   "parserOptions": {
-    "ecmaVersion": 2017
+    "ecmaVersion": 2018
   },
-  "extends": "eslint:recommended",
+  "parser": "typescript-eslint-parser",
+  "extends": [
+    "eslint:recommended"
+  ],
+  "plugins": [
+    "typescript"
+  ],
   "rules": {
     "indent": [
       "error",
@@ -40,6 +46,9 @@
     "curly": "error",
     "brace-style": "error",
     "no-trailing-spaces": "error",
-    "prefer-template": "error"
+    "prefer-template": "error",
+    "typescript/class-name-casing": "error",
+    "typescript/no-unused-vars": "error",
+    "typescript/type-annotation-spacing": "error"
   }
 }
