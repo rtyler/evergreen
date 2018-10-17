@@ -44,6 +44,7 @@
     "curly": "error",
     "brace-style": "error",
     "no-trailing-spaces": "error",
-    "prefer-template": "error"
+    "prefer-template": "error",
+    "jest/valid-expect-in-promise": "error"
   }
 }

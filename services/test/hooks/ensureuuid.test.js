@@ -33,7 +33,7 @@ describe('ensureuuid hook', () => {
     });
 
     it('should return successfully', () => {
-      expect(ensureMatchingUUID(this.context));
+      return expect(ensureMatchingUUID(this.context));
     });
   });
 
@@ -54,7 +54,7 @@ describe('ensureuuid hook', () => {
       this.context.params.user.uuid = uuid;
       this.context.params.query = { uuid: uuid };
 
-      expect(ensureMatchingUUID(this.context));
+      return expect(ensureMatchingUUID(this.context));
     });
 
     it('should fail without matching token and query param `uuid`s', () => {
@@ -64,7 +64,7 @@ describe('ensureuuid hook', () => {
       this.context.params.query = { uuid: 'pickles', };
 
       expect(() => {
-        expect(ensureMatchingUUID(this.context));
+        ensureMatchingUUID(this.context);
       }).toThrow(errors.NotAuthenticated);
     });
   });
@@ -82,7 +82,7 @@ describe('ensureuuid hook', () => {
       this.context.id = 'pickles';
 
       expect(() => {
-        expect(ensureMatchingUUID(this.context));
+        ensureMatchingUUID(this.context);
       }).toThrow(errors.NotAuthenticated);
     });
 
