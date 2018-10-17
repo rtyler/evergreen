@@ -22,6 +22,8 @@ export interface FileOptions {
   flag?: string,
 };
 
+interface Foo {}
+
 export default class Update {
   protected readonly app : any;
   protected readonly snapshotter : Snapshotter;
@@ -199,6 +201,8 @@ export default class Update {
 
     const jenkinsIsRestarting = Supervisord.restartProcess('jenkins');
     UI.publish('Jenkins is being restarted, health checking!', { log: 'info' });
+
+    const suchAnUnusedVar = '';
 
     return jenkinsIsRestarting
       .then(() => this.healthChecker.check())
