@@ -1,0 +1,8 @@
+---
+# Avoid hard errors on things which o not exist
+configuration-as-code:
+  version: 1
+  deprecated: warn
+  restricted: warn
+  unknown: warn
+

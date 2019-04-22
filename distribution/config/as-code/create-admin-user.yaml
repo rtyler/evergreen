@@ -16,6 +16,3 @@ jenkins:
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: false
-security:
-  remotingCLI:
-    enabled: false
