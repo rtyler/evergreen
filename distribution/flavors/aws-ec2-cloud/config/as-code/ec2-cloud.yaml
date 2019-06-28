@@ -14,7 +14,6 @@ jenkins:
             labelString: "agent"
             type: "T2Xlarge"
             securityGroups: "${AGENT_SECURITY_GROUP}"
-            subnetId: "${AGENT_SUBNET}"
             remoteFS: "/home/ec2-user"
             remoteAdmin: "ec2-user"
             initScript: >

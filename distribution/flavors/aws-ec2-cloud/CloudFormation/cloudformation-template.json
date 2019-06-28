@@ -22,105 +22,9 @@
       "MaxLength": "18",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x"
-    },
-    "VPCIPRange": {
-      "Description": "The private IP address range for allocating IPs within the VPC.",
-      "Type": "String",
-      "MinLength": "9",
-      "MaxLength": "18",
-      "Default": "10.0.0.0/16",
-      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
-    }      
+    }
   },
   "Resources": {
-
-      "EvergreenVPC": {
-          "Type": "AWS::EC2::VPC",
-          "Properties": {
-              "EnableDnsSupport": "true",
-              "EnableDnsHostnames": "true",
-              "CidrBlock": {"Ref": "VPCIPRange"},
-              "InstanceTenancy": "default",
-              "Tags": [
-                  { "Key": "Application", "Value": {"Ref": "AWS::StackId"}},
-                  { "Key": "Name", "Value" : "VPC for Jenkins"}
-              ]
-          }
-      },
-      "EvergreenInternetGateway": {
-          "Type": "AWS::EC2::InternetGateway",
-          "Properties": {
-              "Tags": [
-                  { "Key": "Name", "Value" : {"Fn::Sub": "Jenkins ${AWS::StackName}"}}
-              ]
-          }
-      },
-      "EvergreenGatewayAttachment": {
-          "Type": "AWS::EC2::VPCGatewayAttachment",
-          "Properties" : {
-              "VpcId" : { "Ref" : "EvergreenVPC" },
-              "InternetGatewayId": { "Ref" : "EvergreenInternetGateway" }
-          }      
-      },    
-      "EvergreenSubnet": {
-          "Type" : "AWS::EC2::Subnet",
-          "Properties": {
-              "AvailabilityZone" : "us-east-1a",
-              "VpcId": { "Ref" : "EvergreenVPC" },
-              "CidrBlock" : {"Ref": "VPCIPRange"},
-              "MapPublicIpOnLaunch": "true",
-              "Tags": [
-                  { "Key": "Name", "Value" : {"Fn::Sub": "Subnet for Jenkins ${AWS::StackName}"}}
-              ]           
-          }
-      },
-      "EvergreenRouteTable": {
-          "Type": "AWS::EC2::RouteTable",
-          "Properties": {
-              "VpcId" : { "Ref" : "EvergreenVPC" },
-              "Tags": [
-                  { "Key": "Name", "Value" : {"Fn::Sub": "RouteTable for Jenkins ${AWS::StackName}"}}
-              ]            
-          }
-      },
-      "EvergreenInternetRoute": {
-      "Type": "AWS::EC2::Route",
-      "DependsOn": "EvergreenGatewayAttachment",
-      "Properties": {
-          "DestinationCidrBlock" : "0.0.0.0/0",
-          "GatewayId": { "Ref" : "EvergreenInternetGateway" },
-          "RouteTableId": { "Ref" : "EvergreenRouteTable" }
-      }
-      },
-      "EvergreenSubnetRouteTableAssociation": {
-          "Type": "AWS::EC2::SubnetRouteTableAssociation",
-          "Properties": {
-              "RouteTableId": { "Ref" : "EvergreenRouteTable" },
-              "SubnetId": { "Ref" : "EvergreenSubnet" }
-          }
-      },     
-      "EvergreenSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-          "VpcId" : {"Ref" : "EvergreenVPC"},        
-          "GroupDescription" : "allow all traffic",
-          "SecurityGroupIngress" : [{
-              "IpProtocol": "-1",
-              "FromPort" : "-1",
-              "ToPort" : "-1",
-              "CidrIp" : "0.0.0.0/0"
-          }],
-          "SecurityGroupEgress" : [{
-              "IpProtocol" : "-1",
-              "CidrIp" : "0.0.0.0/0"
-          }],
-          "Tags": [
-                  { "Key": "Name", "Value" : {"Fn::Sub": "Global SecurityGroup for ${AWS::StackName}"}}
-          ]            
-      }
-  },
-
     "EC2EvergreenInstance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
@@ -136,7 +40,7 @@
           }
         ],
         "KeyName" : { "Ref" : "KeyNameParameter" },
-        "SecurityGroupIds": [
+        "SecurityGroups": [
           { "Ref": "EvergreenMasterSecurityGroup"}
         ],
         "Tags" : [
@@ -163,7 +67,6 @@
               " -v $PWD/ssh-agents-private-key:/run/secrets/PRIVATE_KEY:ro",
               " -e ARTIFACT_MANAGER_S3_BUCKET_NAME=", {"Ref":"S3BucketForArtifactManager"},
               " -e AGENT_SECURITY_GROUP=", {"Ref":"EvergreenAgentSecurityGroup"},
-              " -e AGENT_SUBNET=", {"Ref":"EvergreenSubnet"},
               " $DOCKER_IMAGE\n"
               ]
             ]

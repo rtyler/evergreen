@@ -41,7 +41,7 @@ aws cloudformation create-stack \
                    --template-body https://raw.githubusercontent.com/jenkins-infra/evergreen/master/distribution/flavors/aws-ec2-cloud/CloudFormation/cloudformation-template.json \
                    --parameters \
                      ParameterKey=KeyNameParameter,ParameterValue=$PEM_NAME_IN_AWS \
-                     ParameterKey=SSHLocation,ParameterValue=$( curl v4.ident.me )/0 \
+                     ParameterKey=SSHLocation,ParameterValue=$( curl ident.me )/0 \
                      ParameterKey=PrivateKey,ParameterValue="$( cat $PEM_FILE_LOCAL_PATH )"
 
 This will display a json output like the following:

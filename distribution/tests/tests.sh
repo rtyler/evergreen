@@ -282,4 +282,17 @@ test_no_hpi() {
   assertEquals "there should be (many) .jpi under $pluginDir: $jpiList" 0 "$?"
 }
 
+# the `remotingCLI` symbol was removed in https://github.com/jenkinsci/jenkins/pull/3838
+# which makes Evergreen crash on Jenkins 2.165+
+# as we cannot update the config files yet, we needed to do this using the Jenkins Evergreen plugin
+# given we *do* have the ability to push plugin updates.
+# This test checks that the CasC file is updated
+test_no_remotingCLI_in_casc_file() {
+
+  # race condition risk? That check might run *before* the plugin has had the time to modify the file?
+  docker exec "$container_under_test" bash -c "cat $EVERGREEN_HOME/config/as-code/create-admin-user.yaml | grep remotingCLI"
+  assertNotEquals "casc file should NOT contain remotingCLI entry anymore" 0 "$?"
+
+}
+
 . ./shunit2/shunit2
